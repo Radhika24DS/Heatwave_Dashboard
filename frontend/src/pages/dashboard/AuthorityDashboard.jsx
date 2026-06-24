@@ -1,4 +1,3 @@
-// src/pages/dashboard/AuthorityDashboard.jsx
 import React, { useEffect, useState } from 'react';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
@@ -6,6 +5,7 @@ import HeatwaveRiskMap from '../../components/common/HeatwaveRiskMap';
 import RiskSummaryCard from '../../components/common/RiskSummaryCard';
 import { predictionApi } from '../../api/predictionApi';
 import { authorityApi } from '../../api/authorityApi';
+import { FileText, AlertCircle, Send } from 'lucide-react';
 import RiskLegend from '../../components/common/RiskLegend';
 import StatCard from '../../components/ui/StatCard';
 
@@ -112,21 +112,12 @@ const AuthorityDashboard = () => {
           <Card title="Vulnerability Reports" className="bg-brand-navy border border-brand-border rounded-2xl p-6 shadow-xl">
             <div className="flex items-center space-x-3 mb-4">
               <FileText className="h-5 w-5 text-risk-moderate" />
-           {/* Stats Overview */}
-        <Card title="Key Metrics" className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard label="Active Alerts" value="3" />
-            <StatCard label="Districts Monitored" value="12" />
-            <StatCard label="Avg Risk Level" value="HIGH" />
-            <StatCard label="Report Generation" value="Completed" />
-          </div>
-        </Card>
-
+              <h3 className="text-md font-bold text-brand-text">Vulnerability Reports</h3>
             </div>
             <p className="text-xs text-brand-muted mb-4 leading-relaxed">
               Export real-time diagnostic reports based on the latest IMD met-variables and PM2.5/AOD datasets.
             </p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 mb-6">
               <button
                 type="button"
                 disabled={downloadingReport}
@@ -143,6 +134,16 @@ const AuthorityDashboard = () => {
               >
                 {downloadingReport ? 'Generating...' : 'Selected District'}
               </button>
+            </div>
+          </Card>
+
+          {/* Stats Overview */}
+          <Card title="Key Metrics" className="mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <StatCard label="Active Alerts" value="3" />
+              <StatCard label="Districts Monitored" value="12" />
+              <StatCard label="Avg Risk Level" value="HIGH" />
+              <StatCard label="Report Generation" value="Completed" />
             </div>
           </Card>
 
