@@ -1,0 +1,85 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "name": "Bangalore", "state": "Karnataka" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.5946, 12.9716]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Mysore", "state": "Karnataka" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [76.6394, 12.2958]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Belagavi", "state": "Karnataka" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [74.4977, 15.8497]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Kalaburagi", "state": "Karnataka" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [76.8343, 17.3297]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Mangalore", "state": "Karnataka" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [74.856, 12.9141]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Chikkamagaluru", "state": "Karnataka" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [75.772, 13.3161]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Bidar", "state": "Karnataka" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.5199, 17.9104]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Davanagere", "state": "Karnataka" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [75.9218, 14.4644]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Udupi", "state": "Karnataka" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [74.7421, 13.3409]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Tumkur", "state": "Karnataka" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.1173, 13.3379]
+      }
+    }
+  ]
+}
