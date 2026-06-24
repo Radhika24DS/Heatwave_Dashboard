@@ -1,0 +1,4 @@
+'''ml/config.py
+Configuration constants for the ML pipeline.
+'''\n\nimport os\nfrom pathlib import Path\n\n# Base project directory (this file's parent.parent)
+BASE_DIR = Path(__file__).resolve().parent.parent\n\n# Data directories\nRAW_DATA_DIR = BASE_DIR / "ml" / "data" / "raw"\nARTIFACTS_DIR = BASE_DIR / "ml" / "artifacts"\nREPORTS_DIR = ARTIFACTS_DIR / "reports"\nMODELS_DIR = ARTIFACTS_DIR / "models"\n\n# Ensure directories exist\nfor d in [RAW_DATA_DIR, REPORTS_DIR, MODELS_DIR]:\n    d.mkdir(parents=True, exist_ok=True)\n\n# Expected raw filenames (must be placed by the user)\nKARNATAKA_CSV = RAW_DATA_DIR / "karnataka.csv"\nWEATHER_CSV = RAW_DATA_DIR / "India__karnataka_2023-01-01_to_2025-06-30.csv"\nAEROSOL_XLSX = RAW_DATA_DIR / "Aerosol_India_Karnataka_2023-25.xlsx"\n\n# Random seed for reproducibility\nRANDOM_SEED = 42\n\n# Train/val split\nTRAIN_RATIO = 0.8\n
