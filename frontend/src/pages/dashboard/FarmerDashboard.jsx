@@ -1,18 +1,28 @@
 // src/pages/dashboard/FarmerDashboard.jsx
 import React from 'react';
+import Card from '../../components/ui/Card';
+import Badge from '../../components/ui/Badge';
+import StatCard from '../../components/ui/StatCard';
 
 const FarmerDashboard = () => {
   return (
-    <div className="p-6 space-y-6">
+    <div className="glass p-6 space-y-6">
+      {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-brand-border/40 pb-4">
         <div>
           <h1 className="text-3xl font-extrabold text-brand-text tracking-tight">Farmer Advisory Insights</h1>
           <p className="text-sm text-brand-muted mt-1">Agricultural heatwave mitigations and real-time soil/irrigation advisories</p>
         </div>
-        <div className="mt-4 md:mt-0 px-4 py-2 bg-brand-slate rounded-lg border border-brand-border text-xs text-brand-muted">
-          District: <span className="font-bold text-risk-low">Active Monitoring</span>
-        </div>
+        <Badge level="LOW" className="mt-4 md:mt-0" />
       </div>
+      <Card title="Key Metrics" className="mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard icon={null} label="Model Accuracy" value="89%" trend="up" trendText="+2%" />
+          <StatCard icon={null} label="ROC AUC" value="0.94" trend="up" trendText="+0.03" />
+          <StatCard icon={null} label="Features" value="42" />
+          <StatCard icon={null} label="Sync Frequency" value="15m" />
+        </div>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Crop Protection Card */}

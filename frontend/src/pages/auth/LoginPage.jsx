@@ -4,12 +4,22 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate, Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
-import { Shield, Mail, Lock, AlertTriangle, Eye, EyeOff } from 'lucide-react';
+import { Flame, Mail, Lock, AlertTriangle, Eye, EyeOff, ChevronRight } from 'lucide-react';
+import Card from '../../components/ui/Card';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
 });
+
+const TEST_ACCOUNTS = [
+  { label: 'Admin',     email: 'admin@heatwave.org',      color: 'text-purple-400' },
+  { label: 'Authority', email: 'authority@heatwave.org',  color: 'text-blue-400'   },
+  { label: 'Research',  email: 'researcher@heatwave.org', color: 'text-cyan-400'   },
+  { label: 'Farmer',    email: 'farmer@heatwave.org',     color: 'text-risk-low'   },
+  { label: 'Traveller', email: 'traveller@heatwave.org',  color: 'text-risk-moderate' },
+  { label: 'Public',    email: 'public@heatwave.org',     color: 'text-brand-muted' },
+];
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -18,17 +28,9 @@ const LoginPage = () => {
   const [apiError, setApiError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm({
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    }
+    defaultValues: { email: '', password: '' },
   });
 
   const onSubmit = async (data) => {
@@ -38,185 +40,151 @@ const LoginPage = () => {
     setLoading(false);
 
     if (result.success) {
-      // Fetch user role to route appropriately
       const token = localStorage.getItem('access_token');
       if (token) {
-        // Decode role from token (already done in context)
-        const role = localStorage.getItem('access_token') ? JSON.parse(atob(token.split('.')[1])).role : 'PUBLIC';
-        
-        // Redirect to role dashboard
-        const uppercaseRole = role.toUpperCase();
-        if (uppercaseRole === 'ADMIN') navigate('/admin');
-        else if (uppercaseRole === 'AUTHORITY') navigate('/authority');
-        else if (uppercaseRole === 'RESEARCH') navigate('/research');
-        else if (uppercaseRole === 'FARMER') navigate('/farmer');
-        else if (uppercaseRole === 'TRAVELLER') navigate('/traveller');
-        else navigate('/public');
-      } else {
-        navigate('/public');
-      }
+        const role = JSON.parse(atob(token.split('.')[1])).role;
+        const r = role.toUpperCase();
+        if (r === 'ADMIN') navigate('/dashboard/admin');
+        else if (r === 'AUTHORITY') navigate('/dashboard/authority');
+        else if (r === 'RESEARCH') navigate('/research');
+        else if (r === 'FARMER') navigate('/farmer');
+        else if (r === 'TRAVELLER') navigate('/traveller');
+        else navigate('/dashboard/public');
+      } else navigate('/dashboard/public');
     } else {
       setApiError(result.error);
     }
   };
 
-  const handleTestLogin = (email) => {
+  const fillTestAccount = (email) => {
     setValue('email', email);
     setValue('password', 'password123');
     setApiError('');
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-brand-dark px-4 py-12 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Background blobs */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-risk-extreme opacity-5 rounded-full blur-[120px]"></div>
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-risk-moderate opacity-5 rounded-full blur-[120px]"></div>
+    <div className="min-h-screen flex bg-brand-bg overflow-hidden">
+      {/* ── Left panel: branding visual ─────────────────────── */}
+      <div className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center relative p-12 bg-heat-dark overflow-hidden">
+        {/* Radial heat glow */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-brand-primary/15 blur-[100px]" />
+          <div className="absolute top-1/4 right-0 w-[300px] h-[300px] rounded-full bg-brand-yellow/10 blur-[80px]" />
+        </div>
 
-      <div className="w-full max-w-md space-y-8 z-10">
-        <div className="text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-slate border border-brand-border text-risk-high shadow-lg">
-            <Shield className="h-9 w-9" />
+        {/* Content */}
+        <div className="relative z-10 text-center max-w-sm">
+          <div className="flex h-20 w-20 mx-auto items-center justify-center rounded-2xl bg-brand-primary/10 border border-brand-primary/30 heat-ring mb-8">
+            <Flame className="h-10 w-10 text-brand-primary" />
           </div>
-          <h2 className="mt-6 text-3xl font-extrabold tracking-tight text-brand-text">
-            Heatwave Warning Portal
-          </h2>
-          <p className="mt-2 text-sm text-brand-muted">
-            Real-Time AI-Based Prediction & Early Warning System
+          <h1 className="font-heading text-4xl font-black mb-3 gradient-text">
+            HeatWave AI
+          </h1>
+          <p className="text-brand-muted text-lg mb-8 leading-relaxed">
+            Karnataka Early Warning System
           </p>
+
+          {/* Feature list */}
+          <div className="space-y-3 text-left">
+            {[
+              '🛰️  Real-time AOD & IMD meteorological data',
+              '🤖  AI-based 3-day heatwave forecasting',
+              '📋  Role-tailored advisories for all users',
+              '🗺️  District-level risk mapping of Karnataka',
+            ].map((f) => (
+              <div key={f} className="flex items-start gap-2 text-sm text-brand-muted">
+                <span>{f}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* PG badge */}
+          <div className="mt-10 inline-flex items-center gap-2 bg-brand-card border border-brand-border rounded-full px-4 py-2 text-xs text-brand-muted">
+            <span className="h-1.5 w-1.5 rounded-full bg-risk-low animate-pulse" />
+            PG Research Project · Department of CS
+          </div>
         </div>
+      </div>
 
-        <div className="bg-brand-navy border border-brand-border rounded-xl p-8 shadow-2xl backdrop-blur-md bg-opacity-95">
-          {apiError && (
-            <div className="mb-6 flex items-center space-x-2 rounded-lg bg-red-900/30 border border-red-500/50 p-4 text-sm text-red-200">
-              <AlertTriangle className="h-5 w-5 text-risk-extreme flex-shrink-0" />
-              <span>{apiError}</span>
+      {/* ── Right panel: login form ──────────────────────────── */}
+      <div className="flex flex-1 flex-col items-center justify-center px-6 py-12 lg:px-12 relative">
+        <div className="w-full max-w-sm relative z-10">
+          {/* Mobile logo */}
+          <div className="lg:hidden text-center mb-8">
+            <div className="flex h-14 w-14 mx-auto items-center justify-center rounded-xl bg-brand-primary/10 border border-brand-primary/30 heat-ring mb-3">
+              <Flame className="h-7 w-7 text-brand-primary" />
             </div>
-          )}
-
-          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-brand-muted mb-1.5">
-                Email Address
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-brand-muted">
-                  <Mail className="h-5 w-5" />
-                </div>
-                <input
-                  id="email"
-                  type="email"
-                  placeholder="name@example.com"
-                  className={`w-full pl-10 pr-3 py-2.5 bg-brand-dark border rounded-lg focus:outline-none focus:ring-2 focus:ring-risk-high focus:border-transparent text-brand-text placeholder-brand-muted/50 ${
-                    errors.email ? 'border-risk-extreme' : 'border-brand-border'
-                  }`}
-                  {...register('email')}
-                />
+            <h1 className="font-heading text-2xl font-black gradient-text">HeatWave AI EWS</h1>
+          </div>
+          <h2 className="font-heading text-2xl font-bold text-brand-text mb-1">Welcome back</h2>
+          <p className="text-sm text-brand-muted mb-8">Sign in to your account to continue</p>
+          <Card title="Sign In" className="glass-sm p-6">
+            {/* Error banner */}
+            {apiError && (
+              <div className="mb-5 flex items-center gap-2 rounded-xl bg-risk-extreme/10 border border-risk-extreme/30 px-4 py-3 text-sm text-red-300">
+                <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+                {apiError}
               </div>
-              {errors.email && (
-                <p className="mt-1 text-xs text-risk-extreme font-medium">{errors.email.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-brand-muted mb-1.5">
-                Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-brand-muted">
-                  <Lock className="h-5 w-5" />
+            )}
+            <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+              {/* Email */}
+              <div>
+                <label htmlFor="login-email" className="block text-xs font-semibold text-brand-muted mb-1.5 uppercase tracking-wider">Email</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-faint pointer-events-none" />
+                  <input id="login-email" type="email" placeholder="you@example.com"
+                    className={`w-full pl-10 pr-4 py-2.5 bg-brand-card border rounded-xl text-sm text-brand-text placeholder-brand-faint focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-brand-primary/50 transition-all ${errors.email ? 'border-risk-extreme' : 'border-brand-border'}`}
+                    {...register('email')}
+                  />
                 </div>
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  className={`w-full pl-10 pr-10 py-2.5 bg-brand-dark border rounded-lg focus:outline-none focus:ring-2 focus:ring-risk-high focus:border-transparent text-brand-text placeholder-brand-muted/50 ${
-                    errors.password ? 'border-risk-extreme' : 'border-brand-border'
-                  }`}
-                  {...register('password')}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-brand-muted hover:text-brand-text focus:outline-none"
-                >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
+                {errors.email && <p className="mt-1 text-xs text-risk-extreme">{errors.email.message}</p>}
               </div>
-              {errors.password && (
-                <p className="mt-1 text-xs text-risk-extreme font-medium">{errors.password.message}</p>
-              )}
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg text-sm font-bold text-white bg-risk-high hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-risk-high disabled:opacity-50 transition-colors shadow-lg shadow-risk-high/20"
-              >
-                {loading ? 'Authenticating...' : 'Sign In'}
+              {/* Password */}
+              <div>
+                <label htmlFor="login-password" className="block text-xs font-semibold text-brand-muted mb-1.5 uppercase tracking-wider">Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-faint pointer-events-none" />
+                  <input id="login-password" type={showPassword ? 'text' : 'password'} placeholder="••••••••"
+                    className={`w-full pl-10 pr-10 py-2.5 bg-brand-card border rounded-xl text-sm text-brand-text placeholder-brand-faint focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-brand-primary/50 transition-all ${errors.password ? 'border-risk-extreme' : 'border-brand-border'}`}
+                    {...register('password')}
+                  />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-faint hover:text-brand-muted transition-colors">
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                {errors.password && <p className="mt-1 text-xs text-risk-extreme">{errors.password.message}</p>}
+              </div>
+              {/* Submit */}
+              <button type="submit" disabled={loading}
+                className="mt-2 w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-bold text-white bg-brand-primary hover:bg-brand-mid focus:outline-none focus:ring-2 focus:ring-brand-primary/50 disabled:opacity-50 transition-all shadow-heat">
+                {loading ? (
+                  <>
+                    <span className="h-3.5 w-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                    Authenticating…
+                  </>
+                ) : (
+                  <>Sign In <ChevronRight className="h-4 w-4" /></>
+                )}
               </button>
-            </div>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-brand-muted">
-              Don't have an account?{' '}
-              <Link to="/register" className="font-medium text-risk-high hover:text-orange-400 transition-colors">
-                Register here
-              </Link>
+            </form>
+            <p className="mt-6 text-center text-sm text-brand-muted">
+              Don't have an account? <Link to="/register" className="font-semibold text-brand-primary hover:text-brand-mid transition-colors">Register here</Link>
             </p>
-          </div>
-        </div>
-
-        {/* Viva Test Account Credentials Quick-Click Section */}
-        <div className="bg-brand-navy/60 border border-brand-border/60 rounded-xl p-5 shadow-lg backdrop-blur-sm">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-brand-muted mb-3 flex items-center">
-            <Shield className="h-4 w-4 mr-1 text-risk-moderate" /> Viva Test Accounts (Auto-role map)
-          </h3>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <button
-              onClick={() => handleTestLogin('admin@heatwave.org')}
-              className="py-2 px-2.5 bg-brand-slate hover:bg-brand-border rounded border border-brand-border text-left hover:text-white transition-colors"
-            >
-              <span className="font-semibold block text-brand-text">ADMIN</span>
-              <span className="text-[10px] text-brand-muted">admin@heatwave.org</span>
-            </button>
-            <button
-              onClick={() => handleTestLogin('authority@heatwave.org')}
-              className="py-2 px-2.5 bg-brand-slate hover:bg-brand-border rounded border border-brand-border text-left hover:text-white transition-colors"
-            >
-              <span className="font-semibold block text-brand-text">AUTHORITY</span>
-              <span className="text-[10px] text-brand-muted">authority@heatwave.org</span>
-            </button>
-            <button
-              onClick={() => handleTestLogin('researcher@heatwave.org')}
-              className="py-2 px-2.5 bg-brand-slate hover:bg-brand-border rounded border border-brand-border text-left hover:text-white transition-colors"
-            >
-              <span className="font-semibold block text-brand-text">RESEARCH</span>
-              <span className="text-[10px] text-brand-muted">researcher@heatwave.org</span>
-            </button>
-            <button
-              onClick={() => handleTestLogin('farmer@heatwave.org')}
-              className="py-2 px-2.5 bg-brand-slate hover:bg-brand-border rounded border border-brand-border text-left hover:text-white transition-colors"
-            >
-              <span className="font-semibold block text-brand-text">FARMER</span>
-              <span className="text-[10px] text-brand-muted">farmer@heatwave.org</span>
-            </button>
-            <button
-              onClick={() => handleTestLogin('traveller@heatwave.org')}
-              className="py-2 px-2.5 bg-brand-slate hover:bg-brand-border rounded border border-brand-border text-left hover:text-white transition-colors"
-            >
-              <span className="font-semibold block text-brand-text">TRAVELLER</span>
-              <span className="text-[10px] text-brand-muted">traveller@heatwave.org</span>
-            </button>
-            <button
-              onClick={() => handleTestLogin('public@heatwave.org')}
-              className="py-2 px-2.5 bg-brand-slate hover:bg-brand-border rounded border border-brand-border text-left hover:text-white transition-colors"
-            >
-              <span className="font-semibold block text-brand-text">PUBLIC</span>
-              <span className="text-[10px] text-brand-muted">public@heatwave.org</span>
-            </button>
-          </div>
+            {/* Quick-fill test accounts */}
+            <div className="mt-8 glass-sm p-4">
+              <p className="text-[10px] text-brand-faint uppercase font-bold tracking-widest mb-3">🎓 Viva / Demo Test Accounts (auto-fill)</p>
+              <div className="grid grid-cols-3 gap-1.5">
+                {TEST_ACCOUNTS.map(({ label, email, color }) => (
+                  <button key={email} type="button" onClick={() => fillTestAccount(email)}
+                    className="py-1.5 px-2 rounded-lg bg-brand-card hover:bg-brand-border border border-brand-border text-[11px] font-semibold transition-colors text-center">
+                    <span className={color}>{label}</span>
+                  </button>
+                ))}
+              </div>
+              <p className="mt-2 text-[10px] text-brand-faint text-center">Password auto-filled as <code className="text-brand-muted">password123</code></p>
+            </div>
+          </Card>
         </div>
       </div>
     </div>

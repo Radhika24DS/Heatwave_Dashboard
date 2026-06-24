@@ -1,10 +1,13 @@
 // src/pages/dashboard/AuthorityDashboard.jsx
 import React, { useEffect, useState } from 'react';
+import Card from '../../components/ui/Card';
+import Badge from '../../components/ui/Badge';
 import HeatwaveRiskMap from '../../components/common/HeatwaveRiskMap';
 import RiskSummaryCard from '../../components/common/RiskSummaryCard';
 import { predictionApi } from '../../api/predictionApi';
 import { authorityApi } from '../../api/authorityApi';
-import { AlertCircle, FileText, Send } from 'lucide-react';
+import RiskLegend from '../../components/common/RiskLegend';
+import StatCard from '../../components/ui/StatCard';
 
 const AuthorityDashboard = () => {
   const [predictions, setPredictions] = useState([]);
@@ -75,13 +78,14 @@ const AuthorityDashboard = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="glass p-6 space-y-6">
       {/* Header Panel */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-brand-border/40 pb-4">
         <div>
           <h1 className="text-3xl font-extrabold text-brand-text tracking-tight">Authority Management Console</h1>
           <p className="text-sm text-brand-muted mt-1">Broadcast official heatwave warnings and download local disaster coordination reports</p>
         </div>
+        <Badge level="EXTREME" className="mt-4 md:mt-0" variant="danger" />
         <div className="mt-4 md:mt-0 flex items-center space-x-2 text-xs text-brand-muted bg-brand-navy border border-brand-border px-3.5 py-1.5 rounded-lg shadow-inner">
           <span className="h-2 w-2 rounded-full bg-red-500 animate-ping" />
           <span className="font-bold text-risk-extreme">Emergency Operations Mode</span>
@@ -97,21 +101,27 @@ const AuthorityDashboard = () => {
       {/* Main Panel Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left column: Geographical distribution */}
-        <div className="lg:col-span-2 bg-brand-navy border border-brand-border rounded-2xl p-5 shadow-xl">
-          <div className="mb-4">
-            <h2 className="text-lg font-bold text-brand-text">Heatwave Risk Geographical Distribution</h2>
-            <p className="text-xs text-brand-muted mt-0.5">Click district center circles to inspect specific atmospheric data</p>
-          </div>
+        <Card title="Heatwave Risk Geographical Distribution" className="lg:col-span-2 bg-brand-navy border border-brand-border rounded-2xl p-5 shadow-xl">
+          <p className="text-xs text-brand-muted mt-0.5">Click district center circles to inspect specific atmospheric data</p>
           <HeatwaveRiskMap />
-        </div>
+        </Card>
 
         {/* Right column: Form & Actions panel */}
         <div className="space-y-6">
           {/* Action 1: Report Generation */}
-          <div className="bg-brand-navy border border-brand-border rounded-2xl p-6 shadow-xl">
+          <Card title="Vulnerability Reports" className="bg-brand-navy border border-brand-border rounded-2xl p-6 shadow-xl">
             <div className="flex items-center space-x-3 mb-4">
               <FileText className="h-5 w-5 text-risk-moderate" />
-              <h3 className="text-md font-bold text-brand-text">Vulnerability Reports</h3>
+           {/* Stats Overview */}
+        <Card title="Key Metrics" className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard label="Active Alerts" value="3" />
+            <StatCard label="Districts Monitored" value="12" />
+            <StatCard label="Avg Risk Level" value="HIGH" />
+            <StatCard label="Report Generation" value="Completed" />
+          </div>
+        </Card>
+
             </div>
             <p className="text-xs text-brand-muted mb-4 leading-relaxed">
               Export real-time diagnostic reports based on the latest IMD met-variables and PM2.5/AOD datasets.
@@ -134,10 +144,10 @@ const AuthorityDashboard = () => {
                 {downloadingReport ? 'Generating...' : 'Selected District'}
               </button>
             </div>
-          </div>
+          </Card>
 
           {/* Action 2: Alert Broadcast Form */}
-          <div className="bg-brand-navy border border-brand-border rounded-2xl p-6 shadow-xl">
+          <Card title="Broadcast Emergency Alert" className="bg-brand-navy border border-brand-border rounded-2xl p-6 shadow-xl">
             <div className="flex items-center space-x-3 mb-4">
               <AlertCircle className="h-5 w-5 text-red-500" />
               <h3 className="text-md font-bold text-brand-text">Broadcast Emergency Alert</h3>
@@ -217,11 +227,11 @@ const AuthorityDashboard = () => {
                 <span>{broadcasting ? 'Broadcasting Alert...' : 'Publish Official Broadcast'}</span>
               </button>
             </form>
-          </div>
+          </Card>
         </div>
+        <RiskLegend />
       </div>
-    </div>
-  );
-};
+    );
+  };
 
-export default AuthorityDashboard;
+  export default AuthorityDashboard;

@@ -1,36 +1,69 @@
 // src/utils/riskColor.js
-// Utility to map risk level strings to Tailwind CSS color classes
-// Expected risk levels: LOW, MODERATE, HIGH, EXTREME (or CRITICAL)
+// Maps risk level strings to the new heatwave design palette
+
+export const RISK_LEVELS = ['LOW', 'MODERATE', 'HIGH', 'EXTREME'];
+
+/** Returns a Tailwind bg class for the given risk level */
 export const getRiskColorClass = (risk) => {
-  const normalized = risk ? risk.toUpperCase() : '';
-  switch (normalized) {
-    case 'LOW':
-      return 'bg-emerald-500';
-    case 'MODERATE':
-      return 'bg-yellow-500';
-    case 'HIGH':
-      return 'bg-orange-500';
+  const r = risk ? risk.toUpperCase() : '';
+  switch (r) {
+    case 'LOW':      return 'bg-risk-low';
+    case 'MODERATE': return 'bg-risk-moderate';
+    case 'HIGH':     return 'bg-risk-high';
     case 'EXTREME':
-    case 'CRITICAL':
-      return 'bg-red-600';
-    default:
-      return 'bg-gray-400';
+    case 'CRITICAL': return 'bg-risk-extreme';
+    default:         return 'bg-brand-border';
   }
 };
 
+/** Returns a hex colour for map markers / chart lines */
 export const getRiskColorHex = (risk) => {
-  const normalized = risk ? risk.toUpperCase() : '';
-  switch (normalized) {
-    case 'LOW':
-      return '#10b981'; // emerald-500
-    case 'MODERATE':
-      return '#facc15'; // yellow-500
-    case 'HIGH':
-      return '#f97316'; // orange-500
+  const r = risk ? risk.toUpperCase() : '';
+  switch (r) {
+    case 'LOW':      return '#4ade80';
+    case 'MODERATE': return '#facc15';
+    case 'HIGH':     return '#fb923c';
     case 'EXTREME':
-    case 'CRITICAL':
-      return '#dc2626'; // red-600
-    default:
-      return '#9ca3af'; // gray-400
+    case 'CRITICAL': return '#ef4444';
+    default:         return '#57534e';
+  }
+};
+
+/** Returns a soft rgba background for badge chips */
+export const getRiskBadgeBg = (risk) => {
+  const r = risk ? risk.toUpperCase() : '';
+  switch (r) {
+    case 'LOW':      return 'rgba(74,222,128,0.12)';
+    case 'MODERATE': return 'rgba(250,204,21,0.12)';
+    case 'HIGH':     return 'rgba(251,146,60,0.12)';
+    case 'EXTREME':
+    case 'CRITICAL': return 'rgba(239,68,68,0.12)';
+    default:         return 'rgba(87,83,78,0.12)';
+  }
+};
+
+/** Returns a human-readable risk label */
+export const getRiskLabel = (risk) => {
+  const r = risk ? risk.toUpperCase() : '';
+  switch (r) {
+    case 'LOW':      return '🟢 Low';
+    case 'MODERATE': return '🟡 Moderate';
+    case 'HIGH':     return '🟠 High';
+    case 'EXTREME':
+    case 'CRITICAL': return '🔴 Extreme';
+    default:         return '⚪ Unknown';
+  }
+};
+
+/** Returns a short icon emoji for the risk level */
+export const getRiskIcon = (risk) => {
+  const r = risk ? risk.toUpperCase() : '';
+  switch (r) {
+    case 'LOW':      return '🟢';
+    case 'MODERATE': return '🟡';
+    case 'HIGH':     return '🟠';
+    case 'EXTREME':
+    case 'CRITICAL': return '🔴';
+    default:         return '⚪';
   }
 };

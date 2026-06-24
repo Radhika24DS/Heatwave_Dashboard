@@ -1,133 +1,183 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
-import { 
-  Home, 
-  Sprout, 
-  Compass, 
-  LineChart, 
-  ShieldAlert, 
-  Settings, 
-  UserCircle2
+import {
+  Home,
+  Sprout,
+  Compass,
+  LineChart,
+  ShieldAlert,
+  Settings,
+  UserCircle2,
+  Activity,
+  Zap,
 } from 'lucide-react';
+
+const NAV_ITEMS = [
+  {
+    name: 'Public Dashboard',
+    path: '/dashboard/public',
+    icon: Home,
+    roles: ['PUBLIC', 'FARMER', 'TRAVELLER', 'RESEARCH', 'AUTHORITY', 'ADMIN'],
+    color: 'text-brand-primary',
+    iconBg: 'bg-brand-primary/10',
+    iconBorder: 'border-brand-primary/20',
+  },
+  {
+    name: 'Farmer View',
+    path: '/farmer',
+    icon: Sprout,
+    roles: ['FARMER', 'ADMIN'],
+    color: 'text-risk-low',
+    iconBg: 'bg-risk-lowBg',
+    iconBorder: 'border-risk-low/20',
+  },
+  {
+    name: 'Traveller View',
+    path: '/traveller',
+    icon: Compass,
+    roles: ['TRAVELLER', 'ADMIN'],
+    color: 'text-risk-moderate',
+    iconBg: 'bg-risk-moderateBg',
+    iconBorder: 'border-risk-moderate/20',
+  },
+  {
+    name: 'Research Insights',
+    path: '/research',
+    icon: LineChart,
+    roles: ['RESEARCH', 'ADMIN'],
+    color: 'text-cyan-400',
+    iconBg: 'bg-cyan-400/10',
+    iconBorder: 'border-cyan-400/20',
+  },
+  {
+    name: 'Authority Panel',
+    path: '/dashboard/authority',
+    icon: ShieldAlert,
+    roles: ['AUTHORITY', 'ADMIN'],
+    color: 'text-blue-400',
+    iconBg: 'bg-blue-400/10',
+    iconBorder: 'border-blue-400/20',
+  },
+  {
+    name: 'Admin Console',
+    path: '/dashboard/admin',
+    icon: Settings,
+    roles: ['ADMIN'],
+    color: 'text-purple-400',
+    iconBg: 'bg-purple-400/10',
+    iconBorder: 'border-purple-400/20',
+  },
+];
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const { role, user } = useAuth();
-  
-  // Navigation config based on roles
-  const navItems = [
-    {
-      name: 'Public Dashboard',
-      path: '/dashboard/public',
-      icon: Home,
-      roles: ['PUBLIC', 'FARMER', 'TRAVELLER', 'RESEARCH', 'AUTHORITY', 'ADMIN']
-    },
-    {
-      name: 'Farmer Dashboard',
-      path: '/farmer',
-      icon: Sprout,
-      roles: ['FARMER', 'ADMIN']
-    },
-    {
-      name: 'Traveller Dashboard',
-      path: '/traveller',
-      icon: Compass,
-      roles: ['TRAVELLER', 'ADMIN']
-    },
-    {
-      name: 'Research Insights',
-      path: '/research',
-      icon: LineChart,
-      roles: ['RESEARCH', 'ADMIN']
-    },
-    {
-      name: 'Authority Panel',
-      path: '/dashboard/authority',
-      icon: ShieldAlert,
-      roles: ['AUTHORITY', 'ADMIN']
-    },
-    {
-      name: 'Admin Settings',
-      path: '/dashboard/admin',
-      icon: Settings,
-      roles: ['ADMIN']
-    }
-  ];
-
-  // Filter items matching current user's role
-  const filteredItems = navItems.filter(item => item.roles.includes(role));
-
-  const linkClass = ({ isActive }) =>
-    `flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-150 ${
-      isActive
-        ? 'bg-brand-slate text-risk-high shadow-inner border-l-4 border-risk-high'
-        : 'text-brand-muted hover:text-brand-text hover:bg-brand-slate/40'
-    }`;
+  const filteredItems = NAV_ITEMS.filter((item) => item.roles.includes(role));
 
   const sidebarContent = (
-    <div className="flex h-full flex-col bg-brand-navy border-r border-brand-border py-4">
-      {/* User profile brief (mobile only) */}
+    <div className="flex h-full flex-col bg-sidebar-grad border-r border-brand-border/60 py-4 overflow-y-auto">
+
+      {/* User profile chip */}
       {user && (
-        <div className="px-6 py-4 border-b border-brand-border/40 mb-4 md:hidden">
-          <div className="flex items-center space-x-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-slate border border-brand-border">
-              <UserCircle2 className="h-6 w-6 text-brand-muted" />
+        <div className="px-3 pb-4 mb-1 border-b border-brand-border/40">
+          <div className="flex items-center gap-2.5 bg-brand-card/80 rounded-xl px-3 py-2.5 border border-brand-border/60">
+            <div className="relative flex-shrink-0">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-primary/10 border border-brand-primary/20">
+                <UserCircle2 className="h-5 w-5 text-brand-primary" />
+              </div>
+              <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-risk-low border-2 border-brand-surface animate-pulse" />
             </div>
-            <div>
-              <p className="text-sm font-bold text-brand-text truncate w-32">{user.name}</p>
-              <p className="text-xs text-brand-muted uppercase font-bold text-[9px] tracking-wide">{user.role}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold text-brand-text truncate leading-tight">{user.name}</p>
+              <p className="text-[10px] text-brand-faint uppercase font-black tracking-widest">{user.role}</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Navigation Links */}
-      <nav className="flex-1 space-y-1 px-3">
+      {/* Navigation */}
+      <nav className="flex-1 space-y-0.5 px-3 pt-2">
+        <p className="text-[9px] text-brand-faint uppercase font-black tracking-[0.15em] px-2 mb-2">
+          Navigation
+        </p>
         {filteredItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             onClick={() => setSidebarOpen(false)}
-            className={linkClass}
+            className={({ isActive }) =>
+              [
+                'relative flex items-center gap-3 px-2.5 py-2 rounded-xl text-[13px] font-semibold transition-all duration-200 group',
+                isActive
+                  ? `${item.color} bg-brand-card border border-brand-border/80 shadow-sm nav-active-bar`
+                  : 'text-brand-muted hover:text-brand-text hover:bg-brand-card/60 border border-transparent',
+              ].join(' ')
+            }
           >
-            <item.icon className="h-5 w-5 flex-shrink-0" />
-            <span>{item.name}</span>
+            {({ isActive }) => (
+              <>
+                <div className={[
+                  'flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border transition-all duration-200',
+                  isActive
+                    ? `${item.iconBg} ${item.iconBorder}`
+                    : 'bg-transparent border-transparent group-hover:bg-brand-card',
+                ].join(' ')}>
+                  <item.icon className={[
+                    'h-4 w-4 transition-colors',
+                    isActive ? item.color : 'text-brand-faint group-hover:text-brand-muted',
+                  ].join(' ')} />
+                </div>
+                <span className="truncate">{item.name}</span>
+                {isActive && (
+                  <span className={`ml-auto h-1.5 w-1.5 rounded-full flex-shrink-0 ${item.color.replace('text-', 'bg-')}`} />
+                )}
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
 
-      {/* Footer / System Status */}
-      <div className="px-6 py-4 border-t border-brand-border/40">
-        <div className="flex items-center space-x-2 text-xs">
-          <span className="h-2.5 w-2.5 rounded-full bg-risk-low animate-ping" />
-          <span className="text-brand-muted font-medium">Model Serving Active</span>
+      {/* System status footer */}
+      <div className="px-3 pt-4 mt-2 border-t border-brand-border/40">
+        <div className="bg-brand-card/60 border border-brand-border/60 rounded-xl px-3 py-2.5">
+          <div className="flex items-center gap-2 text-[11px]">
+            <Zap className="h-3 w-3 text-brand-primary" />
+            <span className="text-brand-muted font-medium">AI Model</span>
+            <span className="ml-auto flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-risk-low animate-pulse" />
+              <span className="text-risk-low font-bold">Live</span>
+            </span>
+          </div>
+          <div className="flex items-center gap-1 mt-1.5">
+            <Activity className="h-3 w-3 text-brand-faint" />
+            <p className="text-[9px] text-brand-faint">EWS v1.4.2 · Karnataka · RF Model</p>
+          </div>
         </div>
-        <p className="text-[10px] text-brand-muted/60 mt-1">EWS Version 1.4.2</p>
       </div>
     </div>
   );
 
   return (
     <>
-      {/* Mobile Drawer Overlay */}
+      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm transition-opacity md:hidden"
+          className="fixed inset-0 z-30 bg-black/70 backdrop-blur-sm md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Mobile Sidebar Slideout */}
+      {/* Mobile drawer */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 transform transition-transform duration-200 ease-in-out md:hidden ${
+        className={`fixed inset-y-0 left-0 z-40 w-60 transform transition-transform duration-200 ease-in-out md:hidden ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {sidebarContent}
       </aside>
 
-      {/* Desktop Persistent Sidebar */}
-      <aside className="hidden md:block md:w-64 md:flex-shrink-0 h-[calc(100vh-4rem)] sticky top-16">
+      {/* Desktop persistent sidebar */}
+      <aside className="hidden md:block md:w-60 md:flex-shrink-0 h-[calc(100vh-3.5rem)] sticky top-14">
         {sidebarContent}
       </aside>
     </>
