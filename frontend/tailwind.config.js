@@ -15,42 +15,42 @@ export default {
       colors: {
         brand: {
           // Dark backgrounds
-          bg:      '#0d0d0d',
-          surface: '#141414',
-          card:    '#1a1a1a',
+          bg:      '#0a0e1a',   // Deep space cadet navy-black
+          surface: '#101726',   // Main panel wrappers & nav headers (dark slate blue)
+          card:    '#162032',   // Bounded card & grid panels (medium navy-slate)
           navy:    '#111827',   // dark blue-grey used in dashboard panels
           slate:   '#1f2937',   // medium blue-grey for inputs/cards
-          border:  '#2a2a2a',
+          border:  '#1e293b',   // Subtle divider lines (slate gray)
           // Text
           text:    '#f5f0eb',
           muted:   '#a8a29e',
           faint:   '#57534e',
           // Accent gradient (sunset → solar)
-          primary: '#ff6b35',
-          mid:     '#ff9500',
-          yellow:  '#ffd500',
+          primary: '#ff4500',   // warm orange-red (sunset heat indicator)
+          mid:     '#ff8c00',   // solar amber
+          yellow:  '#ffd700',   // golden yellow
           // Highlight / interactive
-          glow:    'rgba(255,107,53,0.35)',
+          glow:    'rgba(255,69,0,0.35)',
         },
         risk: {
-          low:      '#4ade80',   // bright green
-          moderate: '#facc15',   // solar yellow
-          high:     '#fb923c',   // deep orange
-          extreme:  '#ef4444',   // alert red
+          low:      '#10b981',   // bright emerald green
+          moderate: '#f59e0b',   // solar yellow-amber
+          high:     '#ef4444',   // alert crimson red
+          extreme:  '#dc2626',   // alert deep fire engine red
           // Soft backgrounds for badges
-          lowBg:      'rgba(74,222,128,0.12)',
-          moderateBg: 'rgba(250,204,21,0.12)',
-          highBg:     'rgba(251,146,60,0.12)',
-          extremeBg:  'rgba(239,68,68,0.12)',
+          lowBg:      'rgba(16,185,129,0.12)',
+          moderateBg: 'rgba(245,158,11,0.12)',
+          highBg:     'rgba(239,68,68,0.12)',
+          extremeBg:  'rgba(220,38,38,0.12)',
         },
       },
       backgroundImage: {
-        'heat-gradient': 'linear-gradient(135deg, #ff6b35 0%, #ff9500 50%, #ffd500 100%)',
-        'heat-dark':     'linear-gradient(180deg, #1a0800 0%, #0d0d0d 100%)',
-        'heat-radial':   'radial-gradient(ellipse at center, #2d0f00 0%, #0d0d0d 70%)',
-        'card-glow':     'radial-gradient(ellipse at top left, rgba(255,107,53,0.08) 0%, transparent 60%)',
-        'sidebar-grad':  'linear-gradient(180deg, #141414 0%, #0d0d0d 100%)',
-        'auth-bg':       'radial-gradient(ellipse at 20% 50%, rgba(255,107,53,0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(255,213,0,0.08) 0%, transparent 50%)',
+        'heat-gradient': 'linear-gradient(135deg, #ff4500 0%, #ff8c00 50%, #ffd700 100%)',
+        'heat-dark':     'linear-gradient(180deg, #160a04 0%, #0a0e1a 100%)',
+        'heat-radial':   'radial-gradient(ellipse at center, #230b00 0%, #0a0e1a 70%)',
+        'card-glow':     'radial-gradient(ellipse at top left, rgba(255,69,0,0.08) 0%, transparent 60%)',
+        'sidebar-grad':  'linear-gradient(180deg, #101726 0%, #0a0e1a 100%)',
+        'auth-bg':       'radial-gradient(ellipse at 20% 50%, rgba(255,69,0,0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(255,215,0,0.08) 0%, transparent 50%)',
       },
       boxShadow: {
         heat:         '0 0 30px rgba(255,107,53,0.25)',

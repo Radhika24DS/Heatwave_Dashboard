@@ -6,7 +6,7 @@ from typing import Any
 from app.core.config import settings
 from app.db.session import SessionLocal
 from sqlalchemy import select
-from app.models.model_registry import ModelRegistry  # assume this exists
+from app.models.prediction import ModelRegistry
 
 _model = None
 _feature_importance = None

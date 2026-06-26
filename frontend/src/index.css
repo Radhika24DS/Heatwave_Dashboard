@@ -55,6 +55,21 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ────────────────────────────────────────────────────────────
+   Premium Card Base
+──────────────────────────────────────────────────────────── */
+.card-premium {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 1rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-premium:hover {
+  border-color: rgba(255, 107, 53, 0.18);
+}
+
+/* ────────────────────────────────────────────────────────────
    Glass-morphism utility
 ──────────────────────────────────────────────────────────── */
 .glass {
@@ -366,3 +381,37 @@ h1, h2, h3, h4, h5, h6 {
 select {
   color-scheme: dark;
 }
+
+/* ────────────────────────────────────────────────────────────
+   Added Phase 7B Redesign Utilities
+   ──────────────────────────────────────────────────────────── */
+.section-header {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.card-glow:hover {
+  box-shadow: 0 10px 30px -10px rgba(255, 107, 53, 0.3);
+  border-color: rgba(255, 107, 53, 0.4);
+}
+

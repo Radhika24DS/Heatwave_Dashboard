@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
+import Logo from './Logo';
 import {
   Home,
   Sprout,
@@ -77,6 +78,21 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const sidebarContent = (
     <div className="flex h-full flex-col bg-sidebar-grad border-r border-brand-border/60 py-4 overflow-y-auto">
 
+      {/* Brand logo header */}
+      <div className="px-4 pb-4 mb-2 flex items-center gap-2.5 border-b border-brand-border/40">
+        <Logo className="h-8 w-8" />
+        <div className="leading-none select-none">
+          <div className="font-heading text-sm font-extrabold tracking-tight">
+            <span className="text-brand-text">Heat</span>
+            <span className="text-brand-primary">Wave</span>
+            <span className="text-brand-faint ml-1 font-medium text-[10px] uppercase tracking-widest">AI</span>
+          </div>
+          <p className="text-[9px] text-brand-faint font-medium uppercase tracking-widest leading-none mt-0.5">
+            Karnataka EWS
+          </p>
+        </div>
+      </div>
+
       {/* User profile chip */}
       {user && (
         <div className="px-3 pb-4 mb-1 border-b border-brand-border/40">
@@ -142,7 +158,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         <div className="bg-brand-card/60 border border-brand-border/60 rounded-xl px-3 py-2.5">
           <div className="flex items-center gap-2 text-[11px]">
             <Zap className="h-3 w-3 text-brand-primary" />
-            <span className="text-brand-muted font-medium">AI Model</span>
+            <span className="text-brand-muted font-medium">XGBoost v2.0</span>
             <span className="ml-auto flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-risk-low animate-pulse" />
               <span className="text-risk-low font-bold">Live</span>
@@ -150,7 +166,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           </div>
           <div className="flex items-center gap-1 mt-1.5">
             <Activity className="h-3 w-3 text-brand-faint" />
-            <p className="text-[9px] text-brand-faint">EWS v1.4.2 · Karnataka · RF Model</p>
+            <p className="text-[9px] text-brand-faint">EWS v2.0 · Karnataka · XGBoost</p>
           </div>
         </div>
       </div>
@@ -169,7 +185,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
       {/* Mobile drawer */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-60 transform transition-transform duration-200 ease-in-out md:hidden ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 transform transition-transform duration-200 ease-in-out md:hidden ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -177,7 +193,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       </aside>
 
       {/* Desktop persistent sidebar */}
-      <aside className="hidden md:block md:w-60 md:flex-shrink-0 h-[calc(100vh-3.5rem)] sticky top-14">
+      <aside className="hidden md:block md:w-64 md:flex-shrink-0 h-full">
         {sidebarContent}
       </aside>
     </>

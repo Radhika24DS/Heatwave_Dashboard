@@ -7,8 +7,11 @@ class IMDWeatherDataBase(BaseModel):
     date: datetime.date = Field(..., description="Date of the weather observation")
     max_temp: float = Field(..., description="Maximum temperature in Celsius")
     min_temp: float = Field(..., description="Minimum temperature in Celsius")
+    mean_temp: Optional[float] = Field(None, description="Mean temperature in Celsius")
     humidity: Optional[float] = Field(None, ge=0.0, le=100.0, description="Humidity percentage")
     wind_speed: Optional[float] = Field(None, ge=0.0, description="Wind speed in km/h")
+    pressure: Optional[float] = Field(None, ge=0.0, description="Atmospheric pressure")
+    solar_radiation: Optional[float] = Field(None, ge=0.0, description="Solar radiation")
     rainfall: Optional[float] = Field(None, ge=0.0, description="Rainfall in mm")
     source: Optional[str] = Field(None, max_length=100, description="Data source name")
 
@@ -18,8 +21,11 @@ class IMDWeatherDataCreate(IMDWeatherDataBase):
 class IMDWeatherDataUpdate(BaseModel):
     max_temp: Optional[float] = None
     min_temp: Optional[float] = None
+    mean_temp: Optional[float] = None
     humidity: Optional[float] = Field(None, ge=0.0, le=100.0)
     wind_speed: Optional[float] = Field(None, ge=0.0)
+    pressure: Optional[float] = Field(None, ge=0.0)
+    solar_radiation: Optional[float] = Field(None, ge=0.0)
     rainfall: Optional[float] = Field(None, ge=0.0)
     source: Optional[str] = Field(None, max_length=100)
 

@@ -1,5 +1,6 @@
 // src/pages/dashboard/PublicDashboard.jsx
 import React, { useEffect, useState } from 'react';
+import Card               from '../../components/ui/Card';
 import HeatwaveRiskMap    from '../../components/common/HeatwaveRiskMap';
 import RiskSummaryCard    from '../../components/common/RiskSummaryCard';
 import DistrictRankCard   from '../../components/common/DistrictRankCard';
@@ -18,16 +19,16 @@ const PageHeader = () => (
         <div className="h-5 w-1 rounded-full bg-heat-gradient" />
         <span className="text-xs text-brand-primary font-bold uppercase tracking-widest">Karnataka · Live Feed</span>
       </div>
-      <h1 className="font-heading text-2xl sm:text-3xl font-black text-brand-text">
+      <h1 className="section-header text-2xl sm:text-3xl font-black text-brand-text">
         Heatwave Risk Assessment
       </h1>
       <p className="text-sm text-brand-muted mt-1">
         AI-powered predictions using AOD aerosol & IMD meteorological data
       </p>
     </div>
-    <div className="flex items-center gap-2 bg-brand-card border border-risk-low/20 rounded-xl px-4 py-2 self-start sm:self-auto">
+    <div className="flex items-center gap-2 bg-brand-card border border-risk-low/20 rounded-xl px-4 py-2 self-start sm:self-auto shadow-sm">
       <span className="h-2 w-2 rounded-full bg-risk-low animate-pulse" />
-      <span className="text-xs font-semibold text-risk-low">Model Active</span>
+      <span className="text-xs font-bold text-risk-low">Model Active</span>
       <Activity className="h-3.5 w-3.5 text-risk-low ml-1" />
     </div>
   </div>
@@ -41,7 +42,7 @@ const SectionHeader = ({ title, subtitle, icon: Icon }) => (
       </div>
     )}
     <div>
-      <h2 className="font-heading text-sm font-bold text-brand-text">{title}</h2>
+      <h2 className="section-header text-sm font-extrabold text-brand-text">{title}</h2>
       {subtitle && <p className="text-[11px] text-brand-faint mt-0.5">{subtitle}</p>}
     </div>
   </div>
@@ -96,7 +97,7 @@ const PublicDashboard = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <div className="h-10 w-10 rounded-full border-2 border-brand-primary/30 border-t-brand-primary animate-spin" />
-        <p className="text-brand-muted text-sm">Loading heatwave data…</p>
+        <p className="text-brand-muted text-sm font-medium">Loading heatwave data…</p>
       </div>
     );
   }
@@ -114,18 +115,18 @@ const PublicDashboard = () => {
       {/* ── Map + Ranking ────────────────────────────────── */}
       <section className="grid grid-cols-1 xl:grid-cols-3 gap-5">
         {/* Map */}
-        <div className="xl:col-span-2 rounded-2xl border border-brand-border bg-brand-card shadow-card overflow-hidden">
-          <div className="p-4 border-b border-brand-border/50 flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-brand-primary" />
-            <div>
-              <h2 className="font-heading text-sm font-bold text-brand-text">Geographical Risk Distribution</h2>
-              <p className="text-[11px] text-brand-faint">Click district circles to inspect atmospheric data</p>
-            </div>
-          </div>
+        <Card
+          padding="none"
+          hover={false}
+          title="Geographical Risk Distribution"
+          subtitle="Click district circles to inspect atmospheric data"
+          accent
+          className="xl:col-span-2 shadow-card overflow-hidden card-glow"
+        >
           <div className="h-[420px]">
             <HeatwaveRiskMap />
           </div>
-        </div>
+        </Card>
 
         {/* Ranking */}
         <DistrictRankCard
@@ -139,7 +140,7 @@ const PublicDashboard = () => {
         <section className="border-t border-brand-border/30 pt-6">
           <div className="flex items-center gap-2 mb-5">
             <AlertTriangle className="h-4 w-4 text-brand-primary" />
-            <h2 className="font-heading text-lg font-black text-brand-text">
+            <h2 className="section-header text-lg font-black text-brand-text">
               Inspection: <span className="gradient-text">{selectedDistrict.district_name}</span>
             </h2>
             <p className="text-xs text-brand-muted hidden sm:block mt-0.5">

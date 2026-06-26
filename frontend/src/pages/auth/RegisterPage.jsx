@@ -4,7 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate, Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
+import { Mail, Lock, AlertTriangle, User, CheckCircle2, ChevronRight } from 'lucide-react';
 import Card from '../../components/ui/Card';
+import Logo from '../../components/layout/Logo';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
@@ -64,7 +66,7 @@ const RegisterPage = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="flex h-14 w-14 mx-auto items-center justify-center rounded-xl bg-brand-primary/10 border border-brand-primary/30 heat-ring mb-4">
-            <Flame className="h-7 w-7 text-brand-primary" />
+            <Logo className="h-7 w-7" />
           </div>
           <h1 className="font-heading text-2xl font-black gradient-text">Create your account</h1>
           <p className="text-sm text-brand-muted mt-1">Join the Karnataka Heatwave Early Warning System</p>
@@ -128,10 +130,10 @@ const RegisterPage = () => {
                     {ROLES.map(({ value, label, desc }) => (
                       <label
                         key={value}
-                        className={`cursor-pointer rounded-xl border p-3 transition-all ${
+                        className={`cursor-pointer rounded-xl border p-3 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
                           selectedRole === value
-                            ? 'border-brand-primary/50 bg-brand-primary/8'
-                            : 'border-brand-border bg-brand-card hover:border-brand-border/80'
+                            ? 'border-brand-primary/50 bg-brand-primary/8 shadow-sm'
+                            : 'border-brand-border bg-brand-card hover:border-brand-primary/30'
                         }`}
                       >
                         <input type="radio" value={value} className="sr-only" {...register('role')} />
@@ -164,7 +166,7 @@ const RegisterPage = () => {
               </p>
             </>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   );

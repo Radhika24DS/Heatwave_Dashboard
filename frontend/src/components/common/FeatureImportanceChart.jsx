@@ -24,7 +24,7 @@ const FeatureImportanceChart = () => {
     <div className="bg-brand-navy border border-brand-border rounded-2xl p-6 shadow-xl">
       <div className="mb-4">
         <h3 className="text-lg font-bold text-brand-text">ML Model Feature Significance</h3>
-        <p className="text-xs text-brand-muted mt-0.5">Random Forest model relative variable importance weights</p>
+        <p className="text-xs text-brand-muted mt-0.5">XGBoost model relative variable importance weights</p>
       </div>
 
       <div className="w-full h-64">

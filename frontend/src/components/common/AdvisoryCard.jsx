@@ -15,8 +15,8 @@ const AdvisoryCard = ({ advisory = {}, onDownloadReport }) => {
 
   return (
     <div
-      className="relative overflow-hidden rounded-2xl border bg-brand-card shadow-card fade-in-up"
-      style={{ borderColor: `${color}30`, borderTopColor: color, borderTopWidth: '2px' }}
+      className="relative overflow-hidden rounded-2xl border bg-brand-card shadow-card fade-in-up transition-all duration-300 hover:border-brand-primary/20"
+      style={{ borderColor: 'rgba(42,42,42,0.8)', borderLeftColor: color, borderLeftWidth: '4px' }}
     >
       {/* Background glow */}
       <div className="absolute top-0 right-0 w-40 h-40 opacity-20 pointer-events-none" style={{ background: `radial-gradient(circle, ${color} 0%, transparent 70%)` }} />

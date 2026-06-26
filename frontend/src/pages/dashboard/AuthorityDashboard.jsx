@@ -1,238 +1,197 @@
+// src/pages/dashboard/AuthorityDashboard.jsx
 import React, { useEffect, useState } from 'react';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
-import HeatwaveRiskMap from '../../components/common/HeatwaveRiskMap';
-import RiskSummaryCard from '../../components/common/RiskSummaryCard';
-import { predictionApi } from '../../api/predictionApi';
-import { authorityApi } from '../../api/authorityApi';
-import { FileText, AlertCircle, Send } from 'lucide-react';
-import RiskLegend from '../../components/common/RiskLegend';
 import StatCard from '../../components/ui/StatCard';
+import HeatwaveRiskMap  from '../../components/common/HeatwaveRiskMap';
+import RiskSummaryCard  from '../../components/common/RiskSummaryCard';
+import { predictionApi } from '../../api/predictionApi';
+import { authorityApi }  from '../../api/authorityApi';
+import { FileText, AlertCircle, Send, Download, ShieldAlert, Activity } from 'lucide-react';
+
+const inputCls = 'w-full bg-brand-surface border border-brand-border rounded-xl px-3 py-2 text-sm text-brand-text focus:outline-none focus:border-brand-primary/40 focus:ring-1 focus:ring-brand-primary/30 transition-all';
 
 const AuthorityDashboard = () => {
-  const [predictions, setPredictions] = useState([]);
+  const [predictions,       setPredictions]       = useState([]);
   const [selectedDistrictId, setSelectedDistrictId] = useState('');
-  const [alertRiskLevel, setAlertRiskLevel] = useState('HIGH');
-  const [alertMessage, setAlertMessage] = useState('');
-  const [broadcastMessage, setBroadcastMessage] = useState(null);
-  const [downloadingReport, setDownloadingReport] = useState(false);
-  const [broadcasting, setBroadcasting] = useState(false);
+  const [alertRiskLevel,    setAlertRiskLevel]    = useState('HIGH');
+  const [alertMessage,      setAlertMessage]      = useState('');
+  const [broadcastMsg,      setBroadcastMsg]      = useState(null);
+  const [downloading,       setDownloading]       = useState(false);
+  const [broadcasting,      setBroadcasting]      = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    (async () => {
       const resp = await predictionApi.getPredictions();
       if (resp?.status === 'success') {
         setPredictions(resp.data);
-        if (resp.data.length > 0) {
-          setSelectedDistrictId(resp.data[0].district_id.toString());
-        }
+        if (resp.data.length > 0) setSelectedDistrictId(resp.data[0].district_id.toString());
       }
-    };
-    fetchData();
+    })();
   }, []);
 
-  const handleBroadcastAlert = async (e) => {
+  const handleBroadcast = async (e) => {
     e.preventDefault();
     if (!selectedDistrictId || !alertMessage.trim()) return;
-
     setBroadcasting(true);
-    setBroadcastMessage(null);
+    setBroadcastMsg(null);
     try {
-      const res = await authorityApi.generateAlerts(
-        selectedDistrictId,
-        alertRiskLevel,
-        alertMessage
+      const res = await authorityApi.generateAlerts(selectedDistrictId, alertRiskLevel, alertMessage);
+      setBroadcastMsg(
+        res.status === 'success'
+          ? { type: 'success', text: `✅ Alert #${res.data?.id || 'OK'} broadcast successfully!` }
+          : { type: 'error',   text: `❌ ${res.message || 'Failed to generate alert.'}` }
       );
-      if (res.status === 'success') {
-        setBroadcastMessage({
-          type: 'success',
-          text: `Success: Alert #${res.data?.id || 'OK'} broadcasted successfully to the public!`
-        });
-        setAlertMessage('');
-      } else {
-        setBroadcastMessage({
-          type: 'error',
-          text: `Error: ${res.message || 'Failed to generate alert.'}`
-        });
-      }
-    } catch (err) {
-      setBroadcastMessage({
-        type: 'error',
-        text: 'Failed to broadcast alert. Check console.'
-      });
+      if (res.status === 'success') setAlertMessage('');
+    } catch {
+      setBroadcastMsg({ type: 'error', text: '❌ Network error. Check console.' });
     } finally {
       setBroadcasting(false);
     }
   };
 
-  const handleDownloadReport = async (scope) => {
-    setDownloadingReport(true);
+  const handleDownload = async (scope) => {
+    setDownloading(true);
     try {
       const distId = scope === 'district' ? parseInt(selectedDistrictId) : null;
       await authorityApi.downloadReport(distId);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setDownloadingReport(false);
-    }
+    } catch (e) { console.error(e); }
+    finally { setDownloading(false); }
   };
 
   return (
-    <div className="glass p-6 space-y-6">
-      {/* Header Panel */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-brand-border/40 pb-4">
+    <div className="space-y-6 fade-in-up">
+      {/* ── Header ─────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-brand-border/40">
         <div>
-          <h1 className="text-3xl font-extrabold text-brand-text tracking-tight">Authority Management Console</h1>
-          <p className="text-sm text-brand-muted mt-1">Broadcast official heatwave warnings and download local disaster coordination reports</p>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="h-5 w-1 rounded-full bg-blue-400" />
+            <span className="text-xs text-blue-400 font-bold uppercase tracking-widest">Authority Console</span>
+          </div>
+          <h1 className="section-header text-2xl sm:text-3xl font-black text-brand-text">
+            Authority Management Console
+          </h1>
+          <p className="text-sm text-brand-muted mt-1 font-medium">
+            Broadcast official heatwave warnings and coordinate district-level disaster response
+          </p>
         </div>
-        <Badge level="EXTREME" className="mt-4 md:mt-0" variant="danger" />
-        <div className="mt-4 md:mt-0 flex items-center space-x-2 text-xs text-brand-muted bg-brand-navy border border-brand-border px-3.5 py-1.5 rounded-lg shadow-inner">
-          <span className="h-2 w-2 rounded-full bg-red-500 animate-ping" />
-          <span className="font-bold text-risk-extreme">Emergency Operations Mode</span>
+        <div className="flex items-center gap-3">
+          <Badge level="EXTREME" pulse />
+          <div className="flex items-center gap-2 bg-risk-extremeBg border border-risk-extreme/30 rounded-xl px-3 py-2 text-xs shadow-sm">
+            <span className="h-2 w-2 rounded-full bg-risk-extreme animate-ping" />
+            <span className="font-bold text-risk-extreme">Emergency Mode</span>
+          </div>
         </div>
       </div>
 
-      {/* Statewide Overview */}
-      <div className="bg-brand-navy/40 border border-brand-border/60 rounded-2xl p-6 shadow-lg">
-        <h2 className="text-sm font-black text-brand-text uppercase tracking-wider mb-4">Statewide District Risk Counts</h2>
+      {/* ── Quick Stats ─────────────────────────────────────── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard icon={AlertCircle}  label="Active Alerts"       value="3"         color="text-risk-extreme" />
+        <StatCard icon={ShieldAlert}  label="Districts Monitored" value="12"        color="text-blue-400" />
+        <StatCard icon={Activity}     label="Avg Risk Level"      value="HIGH"      color="text-risk-high" />
+        <StatCard icon={FileText}     label="Reports Today"       value="8"         color="text-risk-low" />
+      </div>
+
+      {/* ── Statewide Overview ─────────────────────────────── */}
+      <Card title="Statewide District Risk Distribution" className="card-glow" accent>
         <RiskSummaryCard predictions={predictions} />
-      </div>
+      </Card>
 
-      {/* Main Panel Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left column: Geographical distribution */}
-        <Card title="Heatwave Risk Geographical Distribution" className="lg:col-span-2 bg-brand-navy border border-brand-border rounded-2xl p-5 shadow-xl">
-          <p className="text-xs text-brand-muted mt-0.5">Click district center circles to inspect specific atmospheric data</p>
-          <HeatwaveRiskMap />
+      {/* ── Map + Action Panels ─────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Map */}
+        <Card
+          padding="none"
+          hover={false}
+          title="Geographical Risk Distribution"
+          subtitle="Click district center circles to inspect specific atmospheric data"
+          accent
+          className="lg:col-span-2 shadow-card overflow-hidden card-glow"
+        >
+          <div className="h-[380px]"><HeatwaveRiskMap /></div>
         </Card>
 
-        {/* Right column: Form & Actions panel */}
-        <div className="space-y-6">
-          {/* Action 1: Report Generation */}
-          <Card title="Vulnerability Reports" className="bg-brand-navy border border-brand-border rounded-2xl p-6 shadow-xl">
-            <div className="flex items-center space-x-3 mb-4">
-              <FileText className="h-5 w-5 text-risk-moderate" />
-              <h3 className="text-md font-bold text-brand-text">Vulnerability Reports</h3>
-            </div>
+        {/* Right Action Panel */}
+        <div className="space-y-4">
+          {/* Download Reports */}
+          <Card title="📄 Vulnerability Reports">
             <p className="text-xs text-brand-muted mb-4 leading-relaxed">
-              Export real-time diagnostic reports based on the latest IMD met-variables and PM2.5/AOD datasets.
+              Export real-time diagnostic PDFs with IMD met-variables, AOD & PM datasets.
             </p>
-            <div className="grid grid-cols-2 gap-3 mb-6">
+            <div className="grid grid-cols-2 gap-2">
               <button
-                type="button"
-                disabled={downloadingReport}
-                onClick={() => handleDownloadReport('state')}
-                className="py-2.5 bg-brand-slate text-brand-text hover:bg-brand-border border border-brand-border rounded-xl text-xs font-bold transition-all duration-150"
+                disabled={downloading}
+                onClick={() => handleDownload('state')}
+                className="flex items-center justify-center gap-1.5 py-2 text-xs font-bold bg-brand-surface hover:bg-brand-border border border-brand-border rounded-xl transition-all disabled:opacity-50"
               >
-                {downloadingReport ? 'Generating...' : 'All Districts'}
+                <Download className="h-3.5 w-3.5" />
+                All Districts
               </button>
               <button
-                type="button"
-                disabled={downloadingReport}
-                onClick={() => handleDownloadReport('district')}
-                className="py-2.5 bg-brand-slate text-brand-text hover:bg-brand-border border border-brand-border rounded-xl text-xs font-bold transition-all duration-150"
+                disabled={downloading}
+                onClick={() => handleDownload('district')}
+                className="flex items-center justify-center gap-1.5 py-2 text-xs font-bold bg-brand-surface hover:bg-brand-border border border-brand-border rounded-xl transition-all disabled:opacity-50"
               >
-                {downloadingReport ? 'Generating...' : 'Selected District'}
+                <Download className="h-3.5 w-3.5" />
+                Selected
               </button>
             </div>
           </Card>
 
-          {/* Stats Overview */}
-          <Card title="Key Metrics" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatCard label="Active Alerts" value="3" />
-              <StatCard label="Districts Monitored" value="12" />
-              <StatCard label="Avg Risk Level" value="HIGH" />
-              <StatCard label="Report Generation" value="Completed" />
-            </div>
-          </Card>
-
-          {/* Action 2: Alert Broadcast Form */}
-          <Card title="Broadcast Emergency Alert" className="bg-brand-navy border border-brand-border rounded-2xl p-6 shadow-xl">
-            <div className="flex items-center space-x-3 mb-4">
-              <AlertCircle className="h-5 w-5 text-red-500" />
-              <h3 className="text-md font-bold text-brand-text">Broadcast Emergency Alert</h3>
-            </div>
-
-            <form onSubmit={handleBroadcastAlert} className="space-y-4">
-              {/* Select Target District */}
+          {/* Broadcast Alert Form */}
+          <Card title="📢 Broadcast Emergency Alert" glow>
+            <form onSubmit={handleBroadcast} className="space-y-3">
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-brand-muted mb-1.5">
-                  Target District
-                </label>
-                <select
-                  value={selectedDistrictId}
-                  onChange={(e) => setSelectedDistrictId(e.target.value)}
-                  className="w-full bg-brand-slate border border-brand-border rounded-xl px-3 py-2 text-sm text-brand-text focus:outline-none focus:border-brand-muted/60"
-                >
-                  {predictions.map((p) => (
+                <label className="block text-[10px] text-brand-faint uppercase font-bold tracking-widest mb-1">Target District</label>
+                <select value={selectedDistrictId} onChange={e => setSelectedDistrictId(e.target.value)} className={inputCls}>
+                  {predictions.map(p => (
                     <option key={p.id} value={p.district_id}>
-                      {p.district_name || `District ID: ${p.district_id}`}
+                      {p.district_name || `District ${p.district_id}`}
                     </option>
                   ))}
                 </select>
               </div>
-
-              {/* Select Warning Severity */}
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-brand-muted mb-1.5">
-                  Severity Level
-                </label>
-                <select
-                  value={alertRiskLevel}
-                  onChange={(e) => setAlertRiskLevel(e.target.value)}
-                  className="w-full bg-brand-slate border border-brand-border rounded-xl px-3 py-2 text-sm text-brand-text focus:outline-none focus:border-brand-muted/60"
-                >
-                  <option value="LOW">LOW RISK</option>
-                  <option value="MODERATE">MODERATE RISK</option>
-                  <option value="HIGH">HIGH RISK</option>
-                  <option value="EXTREME">EXTREME RISK</option>
+                <label className="block text-[10px] text-brand-faint uppercase font-bold tracking-widest mb-1">Severity</label>
+                <select value={alertRiskLevel} onChange={e => setAlertRiskLevel(e.target.value)} className={inputCls}>
+                  {['LOW','MODERATE','HIGH','EXTREME'].map(l => <option key={l} value={l}>{l} RISK</option>)}
                 </select>
               </div>
-
-              {/* Advisory Message text area */}
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-brand-muted mb-1.5">
-                  Warning message
-                </label>
+                <label className="block text-[10px] text-brand-faint uppercase font-bold tracking-widest mb-1">Warning Message</label>
                 <textarea
-                  required
-                  rows={3}
+                  required rows={3}
                   value={alertMessage}
-                  onChange={(e) => setAlertMessage(e.target.value)}
-                  placeholder="Enter specific directives for the general public, transit guides, and farmers..."
-                  className="w-full bg-brand-slate border border-brand-border rounded-xl p-3 text-xs text-brand-text focus:outline-none focus:border-brand-muted/60 placeholder-brand-muted/40 resize-none leading-relaxed"
+                  onChange={e => setAlertMessage(e.target.value)}
+                  placeholder="Enter directives for the public, transit guides, and farmers…"
+                  className={`${inputCls} resize-none leading-relaxed`}
                 />
               </div>
 
-              {/* Action message indicator */}
-              {broadcastMessage && (
-                <div 
-                  className={`p-3 rounded-xl border text-xs font-semibold ${
-                    broadcastMessage.type === 'success' 
-                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
-                      : 'bg-red-500/10 text-red-400 border-red-500/20'
-                  }`}
-                >
-                  {broadcastMessage.text}
+              {broadcastMsg && (
+                <div className={`p-3 rounded-xl border text-xs font-semibold ${
+                  broadcastMsg.type === 'success'
+                    ? 'bg-risk-lowBg text-risk-low border-risk-low/30'
+                    : 'bg-risk-extremeBg text-risk-extreme border-risk-extreme/30'
+                }`}>
+                  {broadcastMsg.text}
                 </div>
               )}
 
-              {/* Submit Broadcast Button */}
               <button
                 type="submit"
                 disabled={broadcasting}
-                className="w-full py-2.5 bg-red-600 hover:bg-red-500 text-brand-text rounded-xl font-bold transition-all duration-150 flex items-center justify-center space-x-2 text-xs disabled:bg-brand-border"
+                className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold text-white bg-risk-extreme hover:bg-red-500 rounded-xl transition-all disabled:opacity-50 shadow-[0_0_16px_rgba(239,68,68,0.3)]"
               >
-                <Send className="h-4 w-4" />
-                <span>{broadcasting ? 'Broadcasting Alert...' : 'Publish Official Broadcast'}</span>
+                <Send className="h-3.5 w-3.5" />
+                {broadcasting ? 'Broadcasting…' : 'Publish Official Broadcast'}
               </button>
             </form>
           </Card>
         </div>
-        <RiskLegend />
       </div>
-    );
-  };
+    </div>
+  );
+};
 
-  export default AuthorityDashboard;
+export default AuthorityDashboard;

@@ -19,21 +19,21 @@ const RiskLevelCard = ({ districtName, riskLevel, riskScore, weather = {}, aeros
 
   return (
     <div
-      className="relative overflow-hidden rounded-2xl border border-brand-border bg-brand-card shadow-card fade-in-up"
-      style={{ borderTopColor: color, borderTopWidth: '2px' }}
+      className="relative overflow-hidden rounded-2xl border border-brand-border bg-brand-card shadow-card hover:shadow-glow transition-all duration-300 group fade-in-up"
+      style={{ borderTopColor: color, borderTopWidth: '3px' }}
     >
       {/* Glow behind header */}
       <div className="absolute top-0 left-0 w-full h-32 opacity-40 pointer-events-none" style={{ background: `radial-gradient(ellipse at top, ${color}30 0%, transparent 70%)` }} />
 
       <div className="relative p-5">
         {/* Header */}
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between mb-5">
           <div>
-            <h3 className="font-heading text-lg font-bold text-brand-text">{districtName}</h3>
-            <p className="text-xs text-brand-muted">District Risk Profile</p>
+            <h3 className="section-header text-lg font-extrabold text-brand-text">{districtName}</h3>
+            <p className="text-[10px] text-brand-faint uppercase font-bold tracking-widest mt-0.5">District Risk Profile</p>
           </div>
           <span
-            className="text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded-lg border"
+            className="text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded-lg border shadow-sm"
             style={{ color, background: bg, borderColor: `${color}30` }}
           >
             {getRiskLabel(riskLevel)}

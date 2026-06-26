@@ -1,6 +1,7 @@
 import React from 'react';
 import useAuth from '../../hooks/useAuth';
 import { Menu, X, LogOut, User } from 'lucide-react';
+import Logo from './Logo';
 
 const ROLE_BADGE = {
   ADMIN:      { cls: 'text-purple-400 bg-purple-400/10 border-purple-400/30',   emoji: '🛡️'  },
@@ -10,29 +11,6 @@ const ROLE_BADGE = {
   TRAVELLER:  { cls: 'text-risk-moderate bg-risk-moderateBg border-risk-moderate/30', emoji: '🧭' },
   PUBLIC:     { cls: 'text-brand-muted bg-brand-border/20 border-brand-border',  emoji: '👤'  },
 };
-
-const FlameIcon = () => (
-  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
-    <defs>
-      <linearGradient id="nb-flame" x1="0%" y1="100%" x2="100%" y2="0%">
-        <stop offset="0%" stopColor="#ff6b35"/>
-        <stop offset="100%" stopColor="#ffd500"/>
-      </linearGradient>
-    </defs>
-    <path
-      d="M12 2C12 2 16 7 16 11C16 12.7 14.9 13.9 14 13.5C14.8 11.5 13.2 8.5 12 7C12 7 13 10 10.5 12.5C9.5 13.5 8 12.8 8 11.5C8 9.5 9 7.5 9 7.5C7.5 9.5 6.5 11.5 7 14C7.5 16.5 10 19 12 20C14 19 16.5 16.5 17 14C17.8 10 15 5 12 2Z"
-      fill="url(#nb-flame)"
-    />
-    <path
-      d="M9 20.5Q12 18.5 15 20.5"
-      stroke="#ff9500"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      fill="none"
-      opacity="0.7"
-    />
-  </svg>
-);
 
 const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
   const { user, logout } = useAuth();
@@ -58,7 +36,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
         {/* Brand mark */}
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-primary/10 border border-brand-primary/25 heat-ring">
-            <FlameIcon />
+            <Logo className="h-5 w-5" />
           </div>
           <div className="leading-none select-none">
             <div className="font-heading text-sm font-extrabold tracking-tight">

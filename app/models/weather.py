@@ -12,8 +12,11 @@ class IMDWeatherData(Base):
     date: Mapped[Date] = mapped_column(Date, nullable=False, index=True)
     max_temp: Mapped[float] = mapped_column(Float, nullable=False)
     min_temp: Mapped[float] = mapped_column(Float, nullable=False)
+    mean_temp: Mapped[float] = mapped_column(Float, nullable=True)
     humidity: Mapped[float] = mapped_column(Float, nullable=True)
     wind_speed: Mapped[float] = mapped_column(Float, nullable=True)
+    pressure: Mapped[float] = mapped_column(Float, nullable=True)
+    solar_radiation: Mapped[float] = mapped_column(Float, nullable=True)
     rainfall: Mapped[float] = mapped_column(Float, nullable=True)
     source: Mapped[str] = mapped_column(String(100), nullable=True)
     

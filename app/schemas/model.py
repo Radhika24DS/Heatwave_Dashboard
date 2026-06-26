@@ -7,7 +7,7 @@ class ModelRegistryBase(BaseModel):
     version: str = Field(..., max_length=50, description="Model version tag")
     algorithm: str = Field(..., max_length=100, description="Algorithm used to train model")
     accuracy: Optional[float] = Field(None, ge=0.0, le=1.0, description="Model accuracy metrics")
-    file_path: str = Field(..., max_length=512, description="Path where model artifact is saved")
+    model_path: str = Field(..., max_length=512, description="Path where model artifact is saved")
     is_active: bool = Field(False, description="Indicator if model is currently serving prediction requests")
 
 class ModelRegistryCreate(ModelRegistryBase):

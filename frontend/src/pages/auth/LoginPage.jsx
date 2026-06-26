@@ -4,8 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate, Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
-import { Flame, Mail, Lock, AlertTriangle, Eye, EyeOff, ChevronRight } from 'lucide-react';
+import { Mail, Lock, AlertTriangle, Eye, EyeOff, ChevronRight } from 'lucide-react';
 import Card from '../../components/ui/Card';
+import Logo from '../../components/layout/Logo';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Invalid email address'),
@@ -75,7 +76,7 @@ const LoginPage = () => {
         {/* Content */}
         <div className="relative z-10 text-center max-w-sm">
           <div className="flex h-20 w-20 mx-auto items-center justify-center rounded-2xl bg-brand-primary/10 border border-brand-primary/30 heat-ring mb-8">
-            <Flame className="h-10 w-10 text-brand-primary" />
+            <Logo className="h-12 w-12" />
           </div>
           <h1 className="font-heading text-4xl font-black mb-3 gradient-text">
             HeatWave AI
@@ -112,7 +113,7 @@ const LoginPage = () => {
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-8">
             <div className="flex h-14 w-14 mx-auto items-center justify-center rounded-xl bg-brand-primary/10 border border-brand-primary/30 heat-ring mb-3">
-              <Flame className="h-7 w-7 text-brand-primary" />
+              <Logo className="h-7 w-7" />
             </div>
             <h1 className="font-heading text-2xl font-black gradient-text">HeatWave AI EWS</h1>
           </div>
@@ -177,7 +178,7 @@ const LoginPage = () => {
               <div className="grid grid-cols-3 gap-1.5">
                 {TEST_ACCOUNTS.map(({ label, email, color }) => (
                   <button key={email} type="button" onClick={() => fillTestAccount(email)}
-                    className="py-1.5 px-2 rounded-lg bg-brand-card hover:bg-brand-border border border-brand-border text-[11px] font-semibold transition-colors text-center">
+                    className="py-1.5 px-2 rounded-lg bg-brand-card hover:bg-brand-border border border-brand-border text-[11px] font-semibold transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] hover:border-brand-primary/40 text-center">
                     <span className={color}>{label}</span>
                   </button>
                 ))}
