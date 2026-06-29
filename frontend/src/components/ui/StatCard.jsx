@@ -27,11 +27,11 @@ const StatCard = ({
   const bgColor = color.replace('text-', 'bg-').replace(/\/\d+$/, '');
 
   return (
-    <div className={`card-premium p-5 fade-in-up group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-brand-primary/20 hover:shadow-glow ${className}`}>
+    <div className={`card-premium bg-white border border-brand-border p-5 fade-in-up group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-brand-primary/20 hover:shadow-card-hover ${className}`}>
       {/* Soft background radial gradient blur */}
-      <div className="absolute -top-10 -left-10 w-24 h-24 bg-brand-primary/5 rounded-full blur-2xl group-hover:scale-150 transition-all duration-700 pointer-events-none" />
+      <div className="absolute -top-10 -left-10 w-24 h-24 bg-brand-primary/[0.02] rounded-full blur-2xl group-hover:scale-150 transition-all duration-700 pointer-events-none" />
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse at bottom right, rgba(255,107,53,0.03) 0%, transparent 70%)' }}
+        style={{ background: 'radial-gradient(ellipse at bottom right, rgba(234,88,12,0.01) 0%, transparent 70%)' }}
       />
 
       <div className="relative z-10">

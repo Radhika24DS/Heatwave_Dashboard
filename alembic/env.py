@@ -25,7 +25,7 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 # Overwrite the sqlalchemy.url option dynamically with our config value
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.replace("%", "%%"))
 
 
 def do_run_migrations(connection) -> None:
@@ -49,6 +49,10 @@ async def run_async_migrations() -> None:
     connectable = create_async_engine(
         settings.DATABASE_URL,
         poolclass=pool.NullPool,
+        connect_args={
+            "statement_cache_size": 0,
+            "prepared_statement_cache_size": 0,
+        },
     )
 
     async with connectable.connect() as connection:

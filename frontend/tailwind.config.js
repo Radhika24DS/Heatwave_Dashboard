@@ -7,58 +7,88 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
-      fontFamily: {
-        sans:    ['"Outfit"', '"Inter"', 'system-ui', 'sans-serif'],
-        heading: ['"Outfit"', 'system-ui', 'sans-serif'],
-        mono:    ['"Fira Code"', 'monospace'],
-      },
       colors: {
-        brand: {
-          // Dark backgrounds
-          bg:      '#0a0e1a',   // Deep space cadet navy-black
-          surface: '#101726',   // Main panel wrappers & nav headers (dark slate blue)
-          card:    '#162032',   // Bounded card & grid panels (medium navy-slate)
-          navy:    '#111827',   // dark blue-grey used in dashboard panels
-          slate:   '#1f2937',   // medium blue-grey for inputs/cards
-          border:  '#1e293b',   // Subtle divider lines (slate gray)
-          // Text
-          text:    '#f5f0eb',
-          muted:   '#a8a29e',
-          faint:   '#57534e',
-          // Accent gradient (sunset → solar)
-          primary: '#ff4500',   // warm orange-red (sunset heat indicator)
-          mid:     '#ff8c00',   // solar amber
-          yellow:  '#ffd700',   // golden yellow
-          // Highlight / interactive
-          glow:    'rgba(255,69,0,0.35)',
-        },
-        risk: {
-          low:      '#10b981',   // bright emerald green
-          moderate: '#f59e0b',   // solar yellow-amber
-          high:     '#ef4444',   // alert crimson red
-          extreme:  '#dc2626',   // alert deep fire engine red
-          // Soft backgrounds for badges
-          lowBg:      'rgba(16,185,129,0.12)',
-          moderateBg: 'rgba(245,158,11,0.12)',
-          highBg:     'rgba(239,68,68,0.12)',
-          extremeBg:  'rgba(220,38,38,0.12)',
-        },
+        "primary": "#9d4300",
+        "on-primary": "#ffffff",
+        "primary-container": "#f97316",
+        "on-primary-container": "#582200",
+        "primary-fixed": "#ffdbca",
+        "primary-fixed-dim": "#ffb690",
+        "on-primary-fixed": "#341100",
+        "on-primary-fixed-variant": "#783200",
+        "inverse-primary": "#ffb690",
+
+        "secondary": "#006591",
+        "on-secondary": "#ffffff",
+        "secondary-container": "#39b8fd",
+        "on-secondary-container": "#004666",
+        "secondary-fixed": "#c9e6ff",
+        "secondary-fixed-dim": "#89ceff",
+        "on-secondary-fixed": "#001e2f",
+        "on-secondary-fixed-variant": "#004c6e",
+
+        "tertiary": "#795900",
+        "tertiary-container": "#c49200",
+        "on-tertiary": "#ffffff",
+        "on-tertiary-container": "#422f00",
+        "tertiary-fixed": "#ffdf9f",
+        "tertiary-fixed-dim": "#f9bd22",
+        "on-tertiary-fixed": "#261a00",
+        "on-tertiary-fixed-variant": "#5c4300",
+
+        "error": "#ba1a1a",
+        "on-error": "#ffffff",
+        "error-container": "#ffdad6",
+        "on-error-container": "#93000a",
+
+        "background": "#f8f9ff",
+        "on-background": "#0b1c30",
+        "surface": "#f8f9ff",
+        "surface-bright": "#f8f9ff",
+        "surface-dim": "#cbdbf5",
+        "surface-tint": "#9d4300",
+        "on-surface": "#0b1c30",
+        "on-surface-variant": "#584237",
+        "surface-variant": "#d3e4fe",
+        "surface-container-lowest": "#ffffff",
+        "surface-container-low": "#eff4ff",
+        "surface-container": "#e5eeff",
+        "surface-container-high": "#dce9ff",
+        "surface-container-highest": "#d3e4fe",
+        "inverse-surface": "#213145",
+        "inverse-on-surface": "#eaf1ff",
+        "outline": "#8c7164",
+        "outline-variant": "#e0c0b1",
+      },
+      borderRadius: {
+        DEFAULT: "0.125rem",
+        lg: "0.25rem",
+        xl: "0.5rem",
+        full: "0.75rem", // override — soft rounded corners, not a pill/circle
+      },
+      spacing: {
+        "xs": "4px", "base": "4px", "sm": "8px", "md": "16px",
+        "lg": "24px", "xl": "32px",
+        "grid-gutter": "16px", "grid-margin": "24px", "max-width": "1440px",
+      },
+      fontFamily: {
+        headline: ["Inter"], display: ["Inter"], body: ["Inter"], label: ["Inter"],
       },
       backgroundImage: {
-        'heat-gradient': 'linear-gradient(135deg, #ff4500 0%, #ff8c00 50%, #ffd700 100%)',
-        'heat-dark':     'linear-gradient(180deg, #160a04 0%, #0a0e1a 100%)',
-        'heat-radial':   'radial-gradient(ellipse at center, #230b00 0%, #0a0e1a 70%)',
-        'card-glow':     'radial-gradient(ellipse at top left, rgba(255,69,0,0.08) 0%, transparent 60%)',
-        'sidebar-grad':  'linear-gradient(180deg, #101726 0%, #0a0e1a 100%)',
-        'auth-bg':       'radial-gradient(ellipse at 20% 50%, rgba(255,69,0,0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(255,215,0,0.08) 0%, transparent 50%)',
+        'heat-gradient': 'linear-gradient(135deg, #9d4300 0%, #f97316 50%, #f9bd22 100%)',
+        'heat-dark':     'linear-gradient(180deg, #f8f9ff 0%, #eff4ff 100%)',
+        'heat-radial':   'radial-gradient(ellipse at center, #ffffff 0%, #f8f9ff 70%)',
+        'card-glow':     'radial-gradient(ellipse at top left, rgba(157,67,0,0.03) 0%, transparent 60%)',
+        'sidebar-grad':  'linear-gradient(180deg, #ffffff 0%, #f8f9ff 100%)',
+        'auth-bg':       'radial-gradient(ellipse at 20% 50%, rgba(157,67,0,0.05) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(0,101,145,0.03) 0%, transparent 50%)',
       },
       boxShadow: {
-        heat:         '0 0 30px rgba(255,107,53,0.25)',
-        'heat-lg':    '0 0 60px rgba(255,107,53,0.3)',
-        card:         '0 4px 24px rgba(0,0,0,0.5)',
-        glow:         '0 0 20px rgba(255,107,53,0.4)',
-        'inner-heat': 'inset 0 1px 0 rgba(255,149,0,0.15)',
-        'card-hover': '0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,107,53,0.15)',
+        heat:         '0 4px 20px rgba(157,67,0,0.08)',
+        'heat-lg':    '0 10px 30px rgba(157,67,0,0.12)',
+        card:         '0 1px 3px 0 rgba(11,28,48,0.05), 0 1px 2px 0 rgba(11,28,48,0.03)',
+        glow:         '0 0 15px rgba(157,67,0,0.1)',
+        'inner-heat': 'inset 0 1px 0 rgba(157,67,0,0.05)',
+        'card-hover': '0 10px 15px -3px rgba(11,28,48,0.05), 0 4px 6px -4px rgba(11,28,48,0.05), 0 0 0 1px rgba(157,67,0,0.08)',
       },
       animation: {
         'pulse-slow':  'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -78,8 +108,8 @@ export default {
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         heatGlow: {
-          '0%':   { boxShadow: '0 0 10px rgba(255,107,53,0.2)' },
-          '100%': { boxShadow: '0 0 30px rgba(255,107,53,0.5)' },
+          '0%':   { boxShadow: '0 0 10px rgba(157,67,0,0.2)' },
+          '100%': { boxShadow: '0 0 30px rgba(157,67,0,0.5)' },
         },
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },

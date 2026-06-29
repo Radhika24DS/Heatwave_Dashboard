@@ -3,27 +3,38 @@
 @tailwind utilities;
 
 /* ────────────────────────────────────────────────────────────
-   CSS Design Tokens (mirrors Tailwind config)
-──────────────────────────────────────────────────────────── */
+   CSS Design Tokens (mirrors Stitch config)
+   ──────────────────────────────────────────────────────────── */
 :root {
-  --color-bg:       #0d0d0d;
-  --color-surface:  #141414;
-  --color-card:     #1a1a1a;
-  --color-navy:     #111827;
-  --color-slate:    #1f2937;
-  --color-border:   #2a2a2a;
-  --color-text:     #f5f0eb;
-  --color-muted:    #a8a29e;
-  --color-primary:  #ff6b35;
-  --color-mid:      #ff9500;
-  --color-yellow:   #ffd500;
-  --font-heading:   'Outfit', system-ui, sans-serif;
-  --font-body:      'Inter', system-ui, sans-serif;
+  --color-primary:               #9d4300;
+  --color-on-primary:            #ffffff;
+  --color-primary-container:     #f97316;
+  --color-on-primary-container:  #582200;
+  --color-secondary:             #006591;
+  --color-on-secondary:          #ffffff;
+  --color-secondary-container:   #39b8fd;
+  --color-on-secondary-container: #004666;
+  --color-tertiary:              #795900;
+  --color-tertiary-container:     #c49200;
+  --color-error:                 #ba1a1a;
+  --color-error-container:       #ffdad6;
+  --color-on-error-container:     #93000a;
+  --color-background:            #f8f9ff;
+  --color-on-background:         #0b1c30;
+  --color-surface:               #f8f9ff;
+  --color-surface-dim:           #cbdbf5;
+  --color-surface-container:     #e5eeff;
+  --color-surface-container-low: #eff4ff;
+  --color-surface-container-lowest: #ffffff;
+  --color-outline:               #8c7164;
+  --color-outline-variant:       #e0c0b1;
+  
+  --font-family:                 'Inter', sans-serif;
 }
 
 /* ────────────────────────────────────────────────────────────
-   Base Reset
-──────────────────────────────────────────────────────────── */
+   Base Reset & Font Assignments
+   ──────────────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -34,11 +45,11 @@ html {
 
 body {
   margin: 0;
-  font-family: var(--font-body);
+  font-family: var(--font-family);
   font-size: 15px;
   line-height: 1.6;
-  background-color: var(--color-bg);
-  color: var(--color-text);
+  background-color: var(--color-background);
+  color: var(--color-on-background);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -46,372 +57,147 @@ body {
 
 /* ────────────────────────────────────────────────────────────
    Typography
-──────────────────────────────────────────────────────────── */
+   ──────────────────────────────────────────────────────────── */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
+  font-family: var(--font-family);
   font-weight: 700;
   line-height: 1.25;
-  color: var(--color-text);
+  color: var(--color-on-background);
 }
 
 /* ────────────────────────────────────────────────────────────
-   Premium Card Base
-──────────────────────────────────────────────────────────── */
-.card-premium {
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
-  border-radius: 1rem;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+   Stitch Helper Classes
+   ──────────────────────────────────────────────────────────── */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
 }
 
-.card-premium:hover {
-  border-color: rgba(255, 107, 53, 0.18);
+.heat-glow-card {
+  box-shadow: 0 10px 40px -10px rgba(157, 67, 0, 0.15);
 }
 
-/* ────────────────────────────────────────────────────────────
-   Glass-morphism utility
-──────────────────────────────────────────────────────────── */
-.glass {
-  background: rgba(26, 26, 26, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 107, 53, 0.15);
-  border-radius: 1rem;
-}
-
-.glass-sm {
-  background: rgba(20, 20, 20, 0.85);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(42, 42, 42, 0.8);
-  border-radius: 0.75rem;
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .glass-dark {
-  background: rgba(13, 13, 13, 0.9);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 107, 53, 0.1);
-  border-radius: 1rem;
+  background: rgba(33, 49, 69, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-/* ────────────────────────────────────────────────────────────
-   Premium card with gradient border
-──────────────────────────────────────────────────────────── */
-.card-premium {
-  background: linear-gradient(135deg, #1a1a1a 0%, #141414 100%);
-  border: 1px solid #2a2a2a;
-  border-radius: 1rem;
-  position: relative;
-  overflow: hidden;
-  transition: box-shadow 0.3s ease, transform 0.2s ease;
+.pro-shadow {
+  box-shadow: 0 4px 20px -4px rgba(11, 28, 48, 0.12);
 }
 
-.card-premium::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at top left, rgba(255, 107, 53, 0.05) 0%, transparent 60%);
-  pointer-events: none;
+.risk-gradient {
+  background: linear-gradient(90deg, #16a34a 0%, #f9bd22 35%, #f97316 65%, #ba1a1a 100%);
 }
 
-.card-premium:hover {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 107, 53, 0.15);
-  transform: translateY(-1px);
+.pulse-urgent, .pulsate {
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* ────────────────────────────────────────────────────────────
-   Heat-glow ring (for icon containers, buttons etc.)
-──────────────────────────────────────────────────────────── */
-.heat-ring {
-  box-shadow: 0 0 0 1px rgba(255, 107, 53, 0.3),
-              0 0 18px rgba(255, 107, 53, 0.25);
-}
-
-.heat-ring-lg {
-  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.3),
-              0 0 40px rgba(255, 107, 53, 0.3);
-}
-
-/* ────────────────────────────────────────────────────────────
-   Gradient text
-──────────────────────────────────────────────────────────── */
-.gradient-text {
-  background: linear-gradient(90deg, #ff6b35, #ff9500, #ffd500);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.gradient-text-cool {
-  background: linear-gradient(90deg, #22d3ee, #06b6d4);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* ────────────────────────────────────────────────────────────
-   Gradient border button
-──────────────────────────────────────────────────────────── */
-.btn-gradient {
-  background: linear-gradient(135deg, #ff6b35, #ff9500);
-  border: none;
-  color: white;
-  font-weight: 700;
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-gradient::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.btn-gradient:hover::after {
-  opacity: 1;
-}
-
-.btn-gradient:hover {
-  box-shadow: 0 0 30px rgba(255, 107, 53, 0.5);
-  transform: translateY(-1px);
-}
-
-/* ────────────────────────────────────────────────────────────
-   Smooth animated underline for nav links
-──────────────────────────────────────────────────────────── */
-.nav-link-underline {
-  position: relative;
-}
-.nav-link-underline::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #ff6b35, #ffd500);
-  transition: width 0.25s ease;
-  border-radius: 9999px;
-}
-.nav-link-underline:hover::after,
-.nav-link-underline.active::after {
-  width: 100%;
-}
-
-/* ────────────────────────────────────────────────────────────
-   Active sidebar nav item — left accent bar
-──────────────────────────────────────────────────────────── */
-.nav-active-bar {
-  position: relative;
-}
-.nav-active-bar::before {
-  content: '';
-  position: absolute;
-  left: -12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 60%;
-  background: linear-gradient(180deg, #ff6b35, #ff9500);
-  border-radius: 9999px;
-}
-
-/* ────────────────────────────────────────────────────────────
-   Leaflet Map — Heatwave dark theme
-──────────────────────────────────────────────────────────── */
-.leaflet-container {
-  background-color: #111 !important;
-  border-radius: 0.75rem;
-  border: 1px solid #2a2a2a;
-}
-
-.leaflet-popup-content-wrapper {
-  background: #1a1a1a !important;
-  color: #f5f0eb !important;
-  border: 1px solid rgba(255, 107, 53, 0.2);
-  border-radius: 0.75rem !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
-}
-
-.leaflet-popup-tip {
-  background: #1a1a1a !important;
-}
-
-.leaflet-control-zoom a {
-  background-color: #1a1a1a !important;
-  color: #f5f0eb !important;
-  border: 1px solid #2a2a2a !important;
-  transition: all 0.2s;
-}
-
-.leaflet-control-zoom a:hover {
-  background-color: #2a2a2a !important;
-  color: #ff6b35 !important;
-}
-
-.leaflet-tile-pane {
-  filter: brightness(0.55) saturate(0.65);
+@keyframes pulse-ring {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: .7;
+    transform: scale(1.05);
+  }
 }
 
 /* ────────────────────────────────────────────────────────────
    Scrollbar styling
-──────────────────────────────────────────────────────────── */
+   ──────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0d0d0d;
+  background: var(--color-background);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2a2a2a;
-  border-radius: 9999px;
+  background: var(--color-surface-dim);
+  border-radius: var(--radius-full, 0.75rem);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #ff6b35, #ff9500);
+  background: var(--color-primary-container);
 }
 
 /* ────────────────────────────────────────────────────────────
-   Recharts dark theme overrides
-──────────────────────────────────────────────────────────── */
+   Leaflet Map — Stitch light theme
+   ──────────────────────────────────────────────────────────── */
+.leaflet-container {
+  background-color: var(--color-surface-container-low) !important;
+  border-radius: 0.5rem; /* rounded-xl (Stitch override: xl is 0.5rem) */
+  border: 1px solid var(--color-outline-variant);
+}
+
+.leaflet-popup-content-wrapper {
+  background: var(--color-surface-container-lowest) !important;
+  color: var(--color-on-background) !important;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 0.5rem !important;
+  box-shadow: 0 4px 20px -4px rgba(11, 28, 48, 0.12);
+}
+
+.leaflet-popup-tip {
+  background: var(--color-surface-container-lowest) !important;
+}
+
+.leaflet-control-zoom a {
+  background-color: var(--color-surface-container-lowest) !important;
+  color: var(--color-on-background) !important;
+  border: 1px solid var(--color-outline-variant) !important;
+  transition: all 0.2s;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: var(--color-surface-container-low) !important;
+  color: var(--color-primary) !important;
+}
+
+/* ────────────────────────────────────────────────────────────
+   Recharts styling overrides
+   ──────────────────────────────────────────────────────────── */
 .recharts-tooltip-wrapper .recharts-default-tooltip {
-  background-color: #1a1a1a !important;
-  border: 1px solid #2a2a2a !important;
-  border-radius: 0.5rem;
-  color: #f5f0eb;
+  background-color: var(--color-surface-container-lowest) !important;
+  border: 1px solid var(--color-outline-variant) !important;
+  border-radius: 0.25rem; /* rounded-lg (Stitch override: lg is 0.25rem) */
+  color: var(--color-on-background);
+  box-shadow: 0 4px 20px -4px rgba(11, 28, 48, 0.12);
 }
 
 .recharts-cartesian-axis-tick-value {
-  fill: #a8a29e !important;
+  fill: var(--color-outline) !important;
   font-size: 11px;
 }
 
 .recharts-legend-item-text {
-  color: #a8a29e !important;
-}
-
-/* ────────────────────────────────────────────────────────────
-   Background dot grid pattern
-──────────────────────────────────────────────────────────── */
-.dot-grid {
-  background-image: radial-gradient(circle, #2a2a2a 1px, transparent 1px);
-  background-size: 28px 28px;
+  color: var(--color-outline) !important;
 }
 
 /* ────────────────────────────────────────────────────────────
    Stat number display
-──────────────────────────────────────────────────────────── */
-.stat-value {
-  font-family: var(--font-heading);
-  font-weight: 900;
-  font-size: 2.5rem;
-  line-height: 1;
-  letter-spacing: -0.03em;
-}
-
-/* ────────────────────────────────────────────────────────────
-   Risk badge glow effects
-──────────────────────────────────────────────────────────── */
-.risk-badge-low      { box-shadow: 0 0 12px rgba(74, 222, 128, 0.3); }
-.risk-badge-moderate { box-shadow: 0 0 12px rgba(250, 204, 21, 0.3); }
-.risk-badge-high     { box-shadow: 0 0 12px rgba(251, 146, 60, 0.3); }
-.risk-badge-extreme  { box-shadow: 0 0 12px rgba(239, 68, 68, 0.3); }
-
-/* ────────────────────────────────────────────────────────────
-   Animation helpers
-──────────────────────────────────────────────────────────── */
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position:  200% 0; }
-}
-
-.shimmer {
-  background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0);     }
-}
-
-.fade-in-up {
-  animation: fadeInUp 0.4s ease-out both;
-}
-
-/* Stagger children */
-.fade-in-up:nth-child(1) { animation-delay: 0.05s; }
-.fade-in-up:nth-child(2) { animation-delay: 0.10s; }
-.fade-in-up:nth-child(3) { animation-delay: 0.15s; }
-.fade-in-up:nth-child(4) { animation-delay: 0.20s; }
-.fade-in-up:nth-child(5) { animation-delay: 0.25s; }
-.fade-in-up:nth-child(6) { animation-delay: 0.30s; }
-
-@keyframes heatPulse {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50%       { opacity: 1;   transform: scale(1.05); }
-}
-
-.heat-pulse {
-  animation: heatPulse 2.5s ease-in-out infinite;
-}
-
-@keyframes orb-drift {
-  0%   { transform: translate(0, 0) scale(1); }
-  33%  { transform: translate(30px, -20px) scale(1.05); }
-  66%  { transform: translate(-20px, 20px) scale(0.95); }
-  100% { transform: translate(0, 0) scale(1); }
-}
-
-.orb-drift {
-  animation: orb-drift 12s ease-in-out infinite;
-}
-
-/* Select element dark theme */
-select {
-  color-scheme: dark;
-}
-
-/* ────────────────────────────────────────────────────────────
-   Added Phase 7B Redesign Utilities
    ──────────────────────────────────────────────────────────── */
-.section-header {
-  font-family: var(--font-heading);
-  font-weight: 800;
-  color: var(--color-text);
-  letter-spacing: -0.02em;
+.stat-value {
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 2.25rem;
+  line-height: 1;
 }
 
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-  gap: 1.25rem;
+select {
+  color-scheme: light;
 }
-
-@media (min-width: 768px) {
-  .dashboard-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1024px) {
-  .dashboard-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-.card-glow:hover {
-  box-shadow: 0 10px 30px -10px rgba(255, 107, 53, 0.3);
-  border-color: rgba(255, 107, 53, 0.4);
-}
-

@@ -76,44 +76,29 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const filteredItems = NAV_ITEMS.filter((item) => item.roles.includes(role));
 
   const sidebarContent = (
-    <div className="flex h-full flex-col bg-sidebar-grad border-r border-brand-border/60 py-4 overflow-y-auto">
-
-      {/* Brand logo header */}
-      <div className="px-4 pb-4 mb-2 flex items-center gap-2.5 border-b border-brand-border/40">
-        <Logo className="h-8 w-8" />
-        <div className="leading-none select-none">
-          <div className="font-heading text-sm font-extrabold tracking-tight">
-            <span className="text-brand-text">Heat</span>
-            <span className="text-brand-primary">Wave</span>
-            <span className="text-brand-faint ml-1 font-medium text-[10px] uppercase tracking-widest">AI</span>
-          </div>
-          <p className="text-[9px] text-brand-faint font-medium uppercase tracking-widest leading-none mt-0.5">
-            Karnataka EWS
-          </p>
-        </div>
-      </div>
+    <div className="flex h-full flex-col bg-white border-r border-brand-border py-4 overflow-y-auto shadow-sm">
 
       {/* User profile chip */}
       {user && (
-        <div className="px-3 pb-4 mb-1 border-b border-brand-border/40">
-          <div className="flex items-center gap-2.5 bg-brand-card/80 rounded-xl px-3 py-2.5 border border-brand-border/60">
+        <div className="px-3 pb-4 mb-2 border-b border-brand-border">
+          <div className="flex items-center gap-2.5 bg-slate-50/80 rounded-xl px-3 py-2.5 border border-slate-200/55 shadow-sm">
             <div className="relative flex-shrink-0">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-primary/10 border border-brand-primary/20">
-                <UserCircle2 className="h-5 w-5 text-brand-primary" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-primary/10 border border-brand-primary/20">
+                <UserCircle2 className="h-5.5 w-5.5 text-brand-primary" />
               </div>
-              <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-risk-low border-2 border-brand-surface animate-pulse" />
+              <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-risk-low border-2 border-white animate-pulse" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold text-brand-text truncate leading-tight">{user.name}</p>
-              <p className="text-[10px] text-brand-faint uppercase font-black tracking-widest">{user.role}</p>
+              <p className="text-xs font-bold text-brand-navy truncate leading-tight">{user.name}</p>
+              <p className="text-[9px] text-brand-muted uppercase font-extrabold tracking-widest mt-0.5">{user.role}</p>
             </div>
           </div>
         </div>
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-0.5 px-3 pt-2">
-        <p className="text-[9px] text-brand-faint uppercase font-black tracking-[0.15em] px-2 mb-2">
+      <nav className="flex-1 space-y-1 px-3 pt-2">
+        <p className="text-[10px] text-brand-faint uppercase font-extrabold tracking-[0.12em] px-2 mb-2">
           Navigation
         </p>
         {filteredItems.map((item) => (
@@ -121,52 +106,88 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             key={item.path}
             to={item.path}
             onClick={() => setSidebarOpen(false)}
-            className={({ isActive }) =>
-              [
-                'relative flex items-center gap-3 px-2.5 py-2 rounded-xl text-[13px] font-semibold transition-all duration-200 group',
+            className={({ isActive }) => {
+              // Convert text color classes to light-mode standard shades
+              let activeText = item.color.replace('-400', '-600');
+              if (activeText === 'text-risk-low') activeText = 'text-emerald-600';
+              if (activeText === 'text-risk-moderate') activeText = 'text-amber-600';
+              
+              // Map background highlight colors based on active role color
+              let activeBg = 'bg-brand-primary/5';
+              if (item.path.includes('farmer')) activeBg = 'bg-emerald-50';
+              else if (item.path.includes('traveller')) activeBg = 'bg-amber-50';
+              else if (item.path.includes('research')) activeBg = 'bg-cyan-50';
+              else if (item.path.includes('authority')) activeBg = 'bg-blue-50';
+              else if (item.path.includes('admin')) activeBg = 'bg-purple-50';
+              else activeBg = 'bg-orange-50';
+
+              return [
+                'relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-200 group border',
                 isActive
-                  ? `${item.color} bg-brand-card border border-brand-border/80 shadow-sm nav-active-bar`
-                  : 'text-brand-muted hover:text-brand-text hover:bg-brand-card/60 border border-transparent',
-              ].join(' ')
-            }
+                  ? `${activeText} ${activeBg} border-slate-200/50 shadow-sm nav-active-bar`
+                  : 'text-brand-slate hover:text-brand-primary hover:bg-slate-50 border-transparent',
+              ].join(' ');
+            }}
           >
-            {({ isActive }) => (
-              <>
-                <div className={[
-                  'flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border transition-all duration-200',
-                  isActive
-                    ? `${item.iconBg} ${item.iconBorder}`
-                    : 'bg-transparent border-transparent group-hover:bg-brand-card',
-                ].join(' ')}>
-                  <item.icon className={[
-                    'h-4 w-4 transition-colors',
-                    isActive ? item.color : 'text-brand-faint group-hover:text-brand-muted',
-                  ].join(' ')} />
-                </div>
-                <span className="truncate">{item.name}</span>
-                {isActive && (
-                  <span className={`ml-auto h-1.5 w-1.5 rounded-full flex-shrink-0 ${item.color.replace('text-', 'bg-')}`} />
-                )}
-              </>
-            )}
+            {({ isActive }) => {
+              let activeText = item.color.replace('-400', '-600');
+              if (activeText === 'text-risk-low') activeText = 'text-emerald-600';
+              if (activeText === 'text-risk-moderate') activeText = 'text-amber-600';
+
+              let activeIconBg = item.iconBg;
+              if (item.path.includes('farmer')) activeIconBg = 'bg-emerald-50';
+              else if (item.path.includes('traveller')) activeIconBg = 'bg-amber-50';
+              else if (item.path.includes('research')) activeIconBg = 'bg-cyan-50';
+              else if (item.path.includes('authority')) activeIconBg = 'bg-blue-50';
+              else if (item.path.includes('admin')) activeIconBg = 'bg-purple-50';
+              else activeIconBg = 'bg-orange-50';
+
+              let activeIconBorder = item.iconBorder;
+              if (item.path.includes('farmer')) activeIconBorder = 'border-emerald-200';
+              else if (item.path.includes('traveller')) activeIconBorder = 'border-amber-200';
+              else if (item.path.includes('research')) activeIconBorder = 'border-cyan-200';
+              else if (item.path.includes('authority')) activeIconBorder = 'border-blue-200';
+              else if (item.path.includes('admin')) activeIconBorder = 'border-purple-200';
+              else activeIconBorder = 'border-orange-200';
+
+              return (
+                <>
+                  <div className={[
+                    'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border transition-all duration-200',
+                    isActive
+                      ? `${activeIconBg} ${activeIconBorder}`
+                      : 'bg-transparent border-transparent group-hover:bg-white group-hover:border-slate-200 group-hover:shadow-sm',
+                  ].join(' ')}>
+                    <item.icon className={[
+                      'h-4 w-4 transition-colors',
+                      isActive ? activeText : 'text-slate-400 group-hover:text-brand-primary',
+                    ].join(' ')} />
+                  </div>
+                  <span className="truncate">{item.name}</span>
+                  {isActive && (
+                    <span className={`ml-auto h-1.5 w-1.5 rounded-full flex-shrink-0 ${activeText.replace('text-', 'bg-')}`} />
+                  )}
+                </>
+              );
+            }}
           </NavLink>
         ))}
       </nav>
 
       {/* System status footer */}
-      <div className="px-3 pt-4 mt-2 border-t border-brand-border/40">
-        <div className="bg-brand-card/60 border border-brand-border/60 rounded-xl px-3 py-2.5">
+      <div className="px-3 pt-4 mt-2 border-t border-brand-border">
+        <div className="bg-slate-50/80 border border-slate-200/55 rounded-xl px-3 py-2.5 shadow-sm">
           <div className="flex items-center gap-2 text-[11px]">
-            <Zap className="h-3 w-3 text-brand-primary" />
-            <span className="text-brand-muted font-medium">XGBoost v2.0</span>
+            <Zap className="h-3.5 w-3.5 text-brand-primary" />
+            <span className="text-brand-navy font-bold">XGBoost v2.0</span>
             <span className="ml-auto flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-risk-low animate-pulse" />
               <span className="text-risk-low font-bold">Live</span>
             </span>
           </div>
           <div className="flex items-center gap-1 mt-1.5">
-            <Activity className="h-3 w-3 text-brand-faint" />
-            <p className="text-[9px] text-brand-faint">EWS v2.0 · Karnataka · XGBoost</p>
+            <Activity className="h-3.5 w-3.5 text-slate-400" />
+            <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wide leading-none mt-0.5">EWS v2.0 · Karnataka</p>
           </div>
         </div>
       </div>
@@ -178,7 +199,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/70 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-30 bg-slate-900/40 backdrop-blur-sm md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

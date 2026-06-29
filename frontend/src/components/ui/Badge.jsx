@@ -32,7 +32,7 @@ const Badge = ({ level = 'LOW', label, size = 'md', pulse, className = '' }) => 
       className={[
         'inline-flex items-center gap-1.5 rounded-full border font-bold uppercase tracking-wider transition-all duration-300',
         cfg.bg, cfg.border, cfg.color, cfg.glow, sizeClass,
-        isExtreme ? 'animate-pulse shadow-[0_0_12px_rgba(239,68,68,0.4)] border-risk-extreme/60' : '',
+        isExtreme ? 'animate-pulse shadow-[0_2px_10px_rgba(239,68,68,0.15)] border-risk-extreme/60' : '',
         className,
       ].join(' ')}
     >

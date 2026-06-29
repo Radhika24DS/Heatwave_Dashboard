@@ -26,11 +26,11 @@ class Settings(BaseSettings):
         return v
 
     # PostgreSQL Database Configuration
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_HOST: str
+    POSTGRES_USER: str = ""
+    POSTGRES_PASSWORD: str = ""
+    POSTGRES_HOST: str = ""
     POSTGRES_PORT: str = "5432"
-    POSTGRES_DB: str
+    POSTGRES_DB: str = ""
     
     # The complete connection URL
     DATABASE_URL: str = ""
@@ -49,6 +49,8 @@ class Settings(BaseSettings):
                 f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
                 f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
             )
+        elif self.DATABASE_URL.startswith("postgresql://"):
+            self.DATABASE_URL = self.DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
         return self
 
 settings = Settings()

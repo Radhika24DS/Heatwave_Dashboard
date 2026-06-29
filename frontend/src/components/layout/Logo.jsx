@@ -10,9 +10,9 @@ const Logo = ({ className = "h-8 w-8" }) => {
     >
       <defs>
         <linearGradient id="logo-grad" x1="0%" y1="100%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#ff4500" />
-          <stop offset="50%" stopColor="#ff8c00" />
-          <stop offset="100%" stopColor="#ffd700" />
+          <stop offset="0%" stopColor="#EA580C" />
+          <stop offset="50%" stopColor="#F97316" />
+          <stop offset="100%" stopColor="#F59E0B" />
         </linearGradient>
       </defs>
       
@@ -45,7 +45,7 @@ const Logo = ({ className = "h-8 w-8" }) => {
         strokeLinecap="round" 
         strokeLinejoin="round"
       />
-      <circle cx="16" cy="17" r="1.2" fill="#ff4500" />
+      <circle cx="16" cy="17" r="1.2" fill="#EA580C" />
 
       {/* Heat-wave ripples at the bottom */}
       <path 
@@ -56,7 +56,7 @@ const Logo = ({ className = "h-8 w-8" }) => {
       />
       <path 
         d="M8 27c2-1 4-1 6 0s4 1 6 0 4-1 6 0" 
-        stroke="#ffd700" 
+        stroke="#F59E0B" 
         strokeWidth="1.2" 
         strokeLinecap="round"
         opacity="0.8"
