@@ -1,0 +1,46 @@
+{
+    "initial_merged_rows": 912,
+    "final_cleaned_rows_per_district": 912,
+    "total_districts": 10,
+    "total_output_rows": 9120,
+    "duplicates_dropped": 0,
+    "sentinels_replaced_nan": 80,
+    "range_validation": {
+        "total_violations": 0,
+        "violations_by_column": {}
+    },
+    "conversions_applied": {},
+    "imputations": {
+        "pm2p5": {
+            "strategy": "interpolate",
+            "imputed_count": 52,
+            "remaining_nulls": 0
+        },
+        "pm10": {
+            "strategy": "interpolate",
+            "imputed_count": 52,
+            "remaining_nulls": 0
+        },
+        "AOD": {
+            "strategy": "interpolate",
+            "imputed_count": 80,
+            "remaining_nulls": 0
+        }
+    },
+    "outliers_winsorized": {
+        "windspeed": {
+            "total_capped": 4,
+            "capped_low": 0,
+            "capped_high": 4,
+            "lower_bound": -4.499999999999998,
+            "upper_bound": 42.574999999999996
+        },
+        "AOD": {
+            "total_capped": 3,
+            "capped_low": 0,
+            "capped_high": 3,
+            "lower_bound": -0.5333454423749999,
+            "upper_bound": 1.4164904272499999
+        }
+    }
+}

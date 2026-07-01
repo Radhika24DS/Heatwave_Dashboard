@@ -28,3 +28,8 @@ class UserInDBBase(UserBase):
 
 class User(UserInDBBase):
     pass
+
+class UserLogin(BaseModel):
+    email: EmailStr = Field(..., description="User's login email")
+    password: str = Field(..., min_length=8, max_length=100, description="Plain text password")
+

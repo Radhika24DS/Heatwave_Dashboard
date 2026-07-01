@@ -6,6 +6,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Real-Time AI Heatwave EWS"
     API_V1_STR: str = "/api/v1"
+    SECRET_KEY: str = "hews-super-secret-key-change-in-prod"
+    JWT_ALGORITHM: str = "HS256"
+    FINAL_PIPELINE_PATH: str = "ml/artifacts/models/pipeline.joblib"
     
     # CORS Origins: List of URLs. Can be input as list, comma-separated string, or JSON list.
     CORS_ORIGINS: Union[str, List[str]] = ["http://localhost:3000", "http://localhost:8000"]

@@ -24,3 +24,8 @@ class HeatwavePredictionInDBBase(HeatwavePredictionBase):
 
 class HeatwavePrediction(HeatwavePredictionInDBBase):
     pass
+
+class PredictionRequest(BaseModel):
+    district_id: int = Field(..., description="ID of the district to forecast")
+    forecast_date: Optional[datetime.date] = Field(None, description="Target forecast date (defaults to tomorrow)")
+

@@ -15,12 +15,27 @@ from app.utils.responses import standard_response
 setup_logging()
 logger = logging.getLogger("app.main")
 
+from contextlib import asynccontextmanager
+from app.services.prediction import PredictionService
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Starting up HEWS FastAPI Server: preloading model pipeline...")
+    try:
+        # Preload the model pipeline
+        PredictionService.get_pipeline()
+    except Exception as e:
+        logger.error(f"Failed to preload model pipeline on startup: {e}")
+    yield
+    logger.info("Shutting down HEWS FastAPI Server...")
+
 # Build FastAPI app instance
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan
 )
 
 # Set up CORS middleware
