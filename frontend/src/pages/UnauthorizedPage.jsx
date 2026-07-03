@@ -1,35 +1,35 @@
-// src/pages/UnauthorizedPage.jsx
 import React from 'react';
-import { Link } from 'react-router-dom';
-import useAuth from '../hooks/useAuth';
+import { Link, useNavigate } from 'react-router-dom';
+import { ShieldAlert } from 'lucide-react';
 
-const UnauthorizedPage = () => {
-  const { role, logout } = useAuth();
-  
+export default function UnauthorizedPage() {
+  const navigate = useNavigate();
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-brand-dark px-4 text-center">
-      <h1 className="text-9xl font-black text-red-500 tracking-widest">403</h1>
-      <h2 className="text-3xl font-extrabold text-brand-text mt-4">Access Denied</h2>
-      <p className="text-brand-muted mt-2 max-w-md">
-        Your account role <span className="font-bold text-red-400">({role || 'PUBLIC'})</span> does not possess the permissions required to view this dashboard segment.
-      </p>
-      
-      <div className="flex space-x-4 mt-6">
-        <Link
-          to="/"
-          className="px-6 py-3 bg-brand-slate text-brand-text hover:bg-brand-border border border-brand-border rounded-xl font-bold transition-all duration-150"
-        >
-          Go to Home
-        </Link>
-        <button
-          onClick={logout}
-          className="px-6 py-3 bg-red-600/10 text-red-500 hover:bg-red-600/20 border border-red-500/20 rounded-xl font-bold transition-all duration-150"
-        >
-          Log Out
-        </button>
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <div className="bg-surface rounded-card p-8 shadow-card border border-surface-variant max-w-md text-center">
+        <div className="flex justify-center mb-6 text-error">
+          <ShieldAlert size={64} />
+        </div>
+        <h1 className="text-2xl font-black text-on-surface mb-2">Access Denied</h1>
+        <p className="text-on-surface-variant mb-6">
+          You do not have the required permissions to view this page. If you believe this is an error, contact your administrator.
+        </p>
+        <div className="flex justify-center gap-4">
+          <button 
+            onClick={() => navigate(-1)} 
+            className="px-6 py-2 border border-outline rounded-full text-on-surface font-semibold hover:bg-surface-variant transition"
+          >
+            Go Back
+          </button>
+          <Link 
+            to="/app/dashboard" 
+            className="px-6 py-2 bg-primary text-on-primary font-bold rounded-full shadow-heat hover:bg-[#853900] transition"
+          >
+            Dashboard
+          </Link>
+        </div>
       </div>
     </div>
   );
-};
-
-export default UnauthorizedPage;
+}

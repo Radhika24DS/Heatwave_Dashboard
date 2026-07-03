@@ -15,9 +15,12 @@ class RiskLevel(str, enum.Enum):
     EXTREME = "EXTREME"
 
 class AdvisoryRole(str, enum.Enum):
-    PUBLIC = "PUBLIC"
-    FARMER = "FARMER"
+    PUBLIC    = "PUBLIC"
+    FARMER    = "FARMER"
     TRAVELLER = "TRAVELLER"
+    RESEARCH  = "RESEARCH"
+    AUTHORITY = "AUTHORITY"
+    ADMIN     = "ADMIN"
 
 class AlertStatus(str, enum.Enum):
     ACTIVE = "ACTIVE"

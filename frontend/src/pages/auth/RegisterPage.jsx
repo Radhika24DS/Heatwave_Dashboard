@@ -1,175 +1,213 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useNavigate, Link } from 'react-router-dom';
-import useAuth from '../../hooks/useAuth';
-import { Mail, Lock, AlertTriangle, User, CheckCircle2, ChevronRight } from 'lucide-react';
-import Card from '../../components/ui/Card';
-import Logo from '../../components/layout/Logo';
-
-const registerSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').max(100),
-  email: z.string().min(1, 'Email is required').email('Invalid email'),
-  password: z.string().min(8, 'Password must be at least 8 characters').max(100),
-  role: z.enum(['PUBLIC', 'FARMER', 'TRAVELLER', 'RESEARCH'], {
-    errorMap: () => ({ message: 'Please select a valid role' }),
-  }),
-});
+import { authService } from '../../services/auth.service';
+import { Eye, EyeOff, Flame, Lock, Mail, User, Shield, ArrowRight, Loader2, CheckCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const ROLES = [
-  { value: 'PUBLIC',    label: 'General Public',         desc: 'Public heatwave alerts & tips' },
-  { value: 'FARMER',    label: 'Farmer',                 desc: 'Crop & livestock advisories'   },
-  { value: 'TRAVELLER', label: 'Traveller',               desc: 'Travel route risk assessment'  },
-  { value: 'RESEARCH',  label: 'Scientific Researcher',   desc: 'Full model metrics & datasets' },
+  { value: 'PUBLIC',    label: 'Public',      desc: 'General citizen',          icon: '🏙️' },
+  { value: 'FARMER',   label: 'Farmer',       desc: 'Agriculture & rural',       icon: '🌾' },
+  { value: 'TRAVELLER',label: 'Traveller',    desc: 'Travel planning & safety',  icon: '✈️' },
+  { value: 'RESEARCH', label: 'Researcher',   desc: 'Scientific analytics',      icon: '🔬' },
+  { value: 'AUTHORITY',label: 'Authority',    desc: 'Government & disaster mgmt',icon: '🏛️' },
 ];
 
-const RegisterPage = () => {
-  const { register: registerUser } = useAuth();
-  const navigate = useNavigate();
-  const [apiError, setApiError] = useState('');
-  const [success, setSuccess] = useState(false);
+export default function RegisterPage() {
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'PUBLIC' });
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm({
-    resolver: zodResolver(registerSchema),
-    defaultValues: { name: '', email: '', password: '', role: 'PUBLIC' },
-  });
-
-  const selectedRole = watch('role');
-
-  const onSubmit = async (data) => {
-    setApiError('');
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    if (formData.password.length < 8) {
+      toast.error('Password must be at least 8 characters.');
+      return;
+    }
     setLoading(true);
-    const result = await registerUser(data);
-    setLoading(false);
-    if (result.success) {
-      setSuccess(true);
-      setTimeout(() => navigate('/login'), 2500);
-    } else {
-      setApiError(result.error);
+    try {
+      await authService.register(formData);
+      toast.success('Account created! Please sign in.');
+      navigate('/login');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const inputClass = (hasError) =>
-    `w-full pl-10 pr-4 py-2.5 bg-brand-card border rounded-xl text-sm text-brand-text placeholder-brand-faint focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-brand-primary/50 transition-all ${
-      hasError ? 'border-risk-extreme' : 'border-brand-border'
-    }`;
+  const set = (key, val) => setFormData(f => ({ ...f, [key]: val }));
+
+  const inputStyle = {
+    background: 'rgba(255,255,255,0.08)',
+    border: '1px solid rgba(255,219,201,0.2)',
+    color: 'white',
+  };
+  const onFocus = (e) => { e.target.style.border = '1px solid rgba(255,107,53,0.6)'; e.target.style.boxShadow = '0 0 0 3px rgba(255,107,53,0.15)'; };
+  const onBlur  = (e) => { e.target.style.border = '1px solid rgba(255,219,201,0.2)'; e.target.style.boxShadow = 'none'; };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-brand-bg px-4 py-12 relative overflow-hidden">
-      {/* Background glows */}
-      <div className="absolute top-0 left-0 w-80 h-80 rounded-full bg-brand-primary/8 blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-brand-yellow/6 blur-[100px] pointer-events-none" />
+    <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden" style={{ background: 'linear-gradient(135deg, #1a0a00 0%, #3d1200 35%, #7c2d00 65%, #9d4300 100%)' }}>
+      {/* Background orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-15%] right-[-5%] w-96 h-96 rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #ff6b35, transparent)', animation: 'pulse 4s ease-in-out infinite' }} />
+        <div className="absolute bottom-[-10%] left-[-5%] w-80 h-80 rounded-full opacity-15" style={{ background: 'radial-gradient(circle, #ff9500, transparent)', animation: 'pulse 5s ease-in-out infinite 1.5s' }} />
+        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
+      </div>
 
-      <div className="w-full max-w-md relative z-10 fade-in-up">
+      <div className="relative w-full max-w-md">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="flex h-14 w-14 mx-auto items-center justify-center rounded-xl bg-brand-primary/10 border border-brand-primary/30 heat-ring mb-4">
-            <Logo className="h-7 w-7" />
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3 shadow-lg" style={{ background: 'linear-gradient(135deg, #ff6b35, #9d4300)', boxShadow: '0 8px 32px rgba(255,107,53,0.4)' }}>
+            <Flame size={28} color="white" />
           </div>
-          <h1 className="font-heading text-2xl font-black gradient-text">Create your account</h1>
-          <p className="text-sm text-brand-muted mt-1">Join the Karnataka Heatwave Early Warning System</p>
+          <h1 className="text-3xl font-black text-white tracking-tight">Create Account</h1>
+          <p className="text-sm mt-1" style={{ color: 'rgba(255,219,201,0.6)' }}>Join the Heatwave Early Warning System</p>
         </div>
 
-        <Card title="Create Account" className="glass-sm p-6">
-          {/* Success state */}
-          {success ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center fade-in-up">
-              <CheckCircle2 className="h-16 w-16 text-risk-low mb-4" />
-              <h3 className="font-heading text-xl font-bold text-brand-text mb-2">Registration Successful!</h3>
-              <p className="text-sm text-brand-muted">Redirecting you to the sign-in page…</p>
-              <div className="mt-4 h-1 w-40 rounded-full overflow-hidden bg-brand-border">
-                <div className="h-full bg-risk-low rounded-full animate-[shimmer_2.5s_linear_1]" style={{ width: '100%' }} />
+        {/* Card */}
+        <div className="rounded-2xl p-7 shadow-2xl" style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.12)' }}>
+          <form onSubmit={handleRegister} className="space-y-4">
+            {/* Name */}
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'rgba(255,219,201,0.8)' }}>Full Name</label>
+              <div className="relative">
+                <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'rgba(255,219,201,0.5)' }} />
+                <input
+                  id="reg-name"
+                  type="text"
+                  required
+                  placeholder="Your full name"
+                  value={formData.name}
+                  onChange={e => set('name', e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none transition-all"
+                  style={inputStyle}
+                  onFocus={onFocus}
+                  onBlur={onBlur}
+                />
               </div>
             </div>
-          ) : (
-            <>
-              {apiError && (
-                <div className="mb-5 flex items-center gap-2 rounded-xl bg-risk-extreme/10 border border-risk-extreme/30 px-4 py-3 text-sm text-red-300">
-                  <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-                  {apiError}
-                </div>
-              )}
 
-              <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-                {/* Full Name */}
-                <div>
-                  <label htmlFor="reg-name" className="block text-xs font-semibold text-brand-muted mb-1.5 uppercase tracking-wider">Full Name</label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-faint pointer-events-none" />
-                    <input id="reg-name" type="text" placeholder="Arjun Kumar" className={inputClass(!!errors.name)} {...register('name')} />
-                  </div>
-                  {errors.name && <p className="mt-1 text-xs text-risk-extreme">{errors.name.message}</p>}
-                </div>
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'rgba(255,219,201,0.8)' }}>Email Address</label>
+              <div className="relative">
+                <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'rgba(255,219,201,0.5)' }} />
+                <input
+                  id="reg-email"
+                  type="email"
+                  required
+                  placeholder="you@example.com"
+                  value={formData.email}
+                  onChange={e => set('email', e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none transition-all"
+                  style={inputStyle}
+                  onFocus={onFocus}
+                  onBlur={onBlur}
+                />
+              </div>
+            </div>
 
-                {/* Email */}
-                <div>
-                  <label htmlFor="reg-email" className="block text-xs font-semibold text-brand-muted mb-1.5 uppercase tracking-wider">Email</label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-faint pointer-events-none" />
-                    <input id="reg-email" type="email" placeholder="you@example.com" className={inputClass(!!errors.email)} {...register('email')} />
-                  </div>
-                  {errors.email && <p className="mt-1 text-xs text-risk-extreme">{errors.email.message}</p>}
-                </div>
-
-                {/* Password */}
-                <div>
-                  <label htmlFor="reg-password" className="block text-xs font-semibold text-brand-muted mb-1.5 uppercase tracking-wider">Password</label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-faint pointer-events-none" />
-                    <input id="reg-password" type="password" placeholder="Min. 8 characters" className={inputClass(!!errors.password)} {...register('password')} />
-                  </div>
-                  {errors.password && <p className="mt-1 text-xs text-risk-extreme">{errors.password.message}</p>}
-                </div>
-
-                {/* Role picker */}
-                <div>
-                  <label className="block text-xs font-semibold text-brand-muted mb-1.5 uppercase tracking-wider">I am a…</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {ROLES.map(({ value, label, desc }) => (
-                      <label
-                        key={value}
-                        className={`cursor-pointer rounded-xl border p-3 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
-                          selectedRole === value
-                            ? 'border-brand-primary/50 bg-brand-primary/8 shadow-sm'
-                            : 'border-brand-border bg-brand-card hover:border-brand-primary/30'
-                        }`}
-                      >
-                        <input type="radio" value={value} className="sr-only" {...register('role')} />
-                        <p className={`text-xs font-bold ${selectedRole === value ? 'text-brand-primary' : 'text-brand-text'}`}>{label}</p>
-                        <p className="text-[10px] text-brand-faint mt-0.5 leading-tight">{desc}</p>
-                      </label>
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'rgba(255,219,201,0.8)' }}>Password</label>
+              <div className="relative">
+                <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'rgba(255,219,201,0.5)' }} />
+                <input
+                  id="reg-password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  placeholder="Min. 8 characters"
+                  value={formData.password}
+                  onChange={e => set('password', e.target.value)}
+                  className="w-full pl-10 pr-12 py-2.5 rounded-xl text-sm focus:outline-none transition-all"
+                  style={inputStyle}
+                  onFocus={onFocus}
+                  onBlur={onBlur}
+                />
+                <button type="button" onClick={() => setShowPassword(s => !s)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors"
+                  style={{ color: 'rgba(255,219,201,0.5)' }}>
+                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
+              {formData.password.length > 0 && (
+                <div className="flex items-center gap-1.5 mt-1.5">
+                  <div className="flex gap-1">
+                    {[1,2,3,4].map(i => (
+                      <div key={i} className="h-1 w-8 rounded-full transition-all duration-300"
+                        style={{ background: formData.password.length >= i * 3 ? (formData.password.length >= 10 ? '#22c55e' : '#ff9500') : 'rgba(255,255,255,0.15)' }} />
                     ))}
                   </div>
-                  {errors.role && <p className="mt-1 text-xs text-risk-extreme">{errors.role.message}</p>}
+                  <span className="text-xs" style={{ color: 'rgba(255,219,201,0.5)' }}>
+                    {formData.password.length < 8 ? 'Too short' : formData.password.length < 12 ? 'Good' : 'Strong'}
+                  </span>
                 </div>
+              )}
+            </div>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="mt-2 w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-bold text-white bg-brand-primary hover:bg-brand-mid transition-all shadow-heat focus:outline-none focus:ring-2 focus:ring-brand-primary/50 disabled:opacity-50"
-                >
-                  {loading ? (
-                    <><span className="h-3.5 w-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" /> Creating account…</>
-                  ) : (
-                    <>Create Account <ChevronRight className="h-4 w-4" /></>
-                  )}
-                </button>
-              </form>
+            {/* Role Selection */}
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{ color: 'rgba(255,219,201,0.8)' }}>
+                <Shield size={13} className="inline mr-1" />
+                Account Type
+              </label>
+              <div className="grid grid-cols-1 gap-2">
+                {ROLES.map(role => (
+                  <button
+                    key={role.value}
+                    type="button"
+                    id={`role-${role.value.toLowerCase()}`}
+                    onClick={() => set('role', role.value)}
+                    className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-left transition-all duration-200"
+                    style={{
+                      background: formData.role === role.value ? 'rgba(255,107,53,0.25)' : 'rgba(255,255,255,0.06)',
+                      border: formData.role === role.value ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,219,201,0.12)',
+                      boxShadow: formData.role === role.value ? '0 0 0 1px rgba(255,107,53,0.2)' : 'none',
+                    }}
+                  >
+                    <span className="text-xl flex-shrink-0">{role.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-white">{role.label}</p>
+                      <p className="text-xs" style={{ color: 'rgba(255,219,201,0.5)' }}>{role.desc}</p>
+                    </div>
+                    {formData.role === role.value && (
+                      <CheckCircle size={16} style={{ color: '#ff6b35', flexShrink: 0 }} />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-              <p className="mt-6 text-center text-sm text-brand-muted">
-                Already have an account?{' '}
-                <Link to="/login" className="font-semibold text-brand-primary hover:text-brand-mid transition-colors">
-                  Sign in
-                </Link>
-              </p>
-            </>
-          )}
-        </Card>
+            {/* Submit */}
+            <button
+              id="reg-submit"
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-60 mt-2"
+              style={{
+                background: 'linear-gradient(135deg, #ff6b35, #9d4300)',
+                color: 'white',
+                boxShadow: '0 4px 20px rgba(255,107,53,0.35)',
+              }}
+              onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(255,107,53,0.45)'; } }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(255,107,53,0.35)'; }}
+            >
+              {loading ? <Loader2 size={18} className="animate-spin" /> : <ArrowRight size={18} />}
+              {loading ? 'Creating account…' : 'Create Account'}
+            </button>
+          </form>
+
+          <p className="mt-5 text-center text-sm" style={{ color: 'rgba(255,219,201,0.5)' }}>
+            Already have an account?{' '}
+            <Link to="/login" className="font-bold" style={{ color: '#ff9500' }}>Sign in</Link>
+          </p>
+        </div>
+
+        <p className="text-center text-xs mt-5" style={{ color: 'rgba(255,219,201,0.3)' }}>
+          Karnataka Heatwave EWS · AI-Powered Climate Intelligence
+        </p>
       </div>
     </div>
   );
-};
-
-export default RegisterPage;
+}

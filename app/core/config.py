@@ -11,9 +11,9 @@ class Settings(BaseSettings):
     FINAL_PIPELINE_PATH: str = "ml/artifacts/models/pipeline.joblib"
     
     # CORS Origins: List of URLs. Can be input as list, comma-separated string, or JSON list.
-    CORS_ORIGINS: Union[str, List[str]] = ["http://localhost:3000", "http://localhost:8000"]
+    ALLOWED_ORIGINS: Union[str, List[str]] = []
 
-    @field_validator("CORS_ORIGINS", mode="before")
+    @field_validator("ALLOWED_ORIGINS", mode="before")
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
         if isinstance(v, str):

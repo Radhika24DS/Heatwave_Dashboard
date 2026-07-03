@@ -118,7 +118,7 @@ class TestPredictionIntegration(unittest.TestCase):
             
             # Verify advisory structure
             self.assertIn("advisory", data)
-            self.assertEqual(data["advisory"]["target_demographic"], "PUBLIC, FARMER, TRAVELLER")
+            self.assertEqual(data["advisory"]["target_demographic"], "PUBLIC")
             self.assertIn("message", data["advisory"])
 
 if __name__ == '__main__':

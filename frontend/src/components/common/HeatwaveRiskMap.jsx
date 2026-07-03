@@ -1,85 +1,66 @@
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
-import L from 'leaflet';
+import React from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { getRiskColorHex } from '../../utils/riskColor';
-import { predictionApi } from '../../api/predictionApi';
-import RiskLegend from './RiskLegend';
+import L from 'leaflet';
 
-const HeatwaveRiskMap = () => {
-  const [geoData, setGeoData] = useState(null);
-  const [predictions, setPredictions] = useState([]);
+// Fix for default marker icon in react-leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
-  // Load GeoJSON file
-  useEffect(() => {
-    fetch('/karnataka_districts.geojson')
-      .then((res) => res.json())
-      .then(setGeoData)
-      .catch((e) => console.error('Failed to load GeoJSON', e));
-  }, []);
+const KARNATAKA_DISTRICTS = [
+  { id: 1, name: "Bangalore", lat: 12.9716, lng: 77.5946 },
+  { id: 2, name: "Mysore", lat: 12.2958, lng: 76.6394 },
+  { id: 3, name: "Hubli", lat: 15.3647, lng: 75.1240 },
+  { id: 4, name: "Mangalore", lat: 12.9141, lng: 74.8560 },
+  { id: 5, name: "Belgaum", lat: 15.8497, lng: 74.4977 },
+];
 
-  // Load predictions
-  useEffect(() => {
-    const load = async () => {
-      const resp = await predictionApi.getPredictions();
-      if (resp?.status === 'success') {
-        setPredictions(resp.data);
-      } else {
-        console.warn('Prediction API fallback data not available');
-      }
-    };
-    load();
-  }, []);
+function ChangeView({ center }) {
+  const map = useMap();
+  map.setView(center, map.getZoom());
+  return null;
+}
 
-  // Helper to get risk level for a district name
-  const getRiskForDistrict = (name) => {
-    const match = predictions.find((p) => p.district_name?.toUpperCase() === name.toUpperCase());
-    return match?.risk_level || 'LOW';
-  };
-
-  // Style each feature based on risk level
-  const onEachFeature = (feature, layer) => {
-    const districtName = feature.properties?.district || feature.properties?.name || '';
-    const risk = getRiskForDistrict(districtName);
-    const color = getRiskColorHex(risk);
-    layer.setStyle({
-      fillColor: color,
-      weight: 2,
-      opacity: 1,
-      color: '#ffffff',
-      fillOpacity: 0.6,
-    });
-    const tooltipContent = `${districtName}<br/>Risk: ${risk}`;
-    layer.bindTooltip(tooltipContent, { sticky: true });
-  };
-
-  // Map points to circle markers with custom styling
-  const pointToLayer = (feature, latlng) => {
-    const districtName = feature.properties?.district || feature.properties?.name || '';
-    const risk = getRiskForDistrict(districtName);
-    const color = getRiskColorHex(risk);
-    return L.circleMarker(latlng, {
-      radius: 12,
-      fillColor: color,
-      color: '#ffffff',
-      weight: 2,
-      opacity: 1,
-      fillOpacity: 0.8,
-    });
-  };
-
-  if (!geoData) return <div className="flex h-64 items-center justify-center font-semibold text-brand-muted">Loading map…</div>;
+export default function HeatwaveRiskMap({ districtId, onDistrictClick }) {
+  const centerDistrict = KARNATAKA_DISTRICTS.find(d => d.id === districtId) || KARNATAKA_DISTRICTS[0];
 
   return (
-    <MapContainer center={[15.3, 75.7]} zoom={6} style={{ height: '500px', width: '100%' }} className="relative rounded-lg shadow-lg">
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
-        url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-      />
-      <GeoJSON data={geoData} onEachFeature={onEachFeature} pointToLayer={pointToLayer} />
-      <RiskLegend />
-    </MapContainer>
-  );
-};
+    <div className="h-full w-full relative z-0">
+      <MapContainer 
+        center={[centerDistrict.lat, centerDistrict.lng]} 
+        zoom={7} 
+        style={{ height: '100%', width: '100%' }}
+        className="rounded-lg"
+      >
+        <ChangeView center={[centerDistrict.lat, centerDistrict.lng]} />
+        
+        {/* Light modern map style */}
+        <TileLayer
+          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        />
 
-export default HeatwaveRiskMap;
+        {KARNATAKA_DISTRICTS.map((district) => (
+          <Marker 
+            key={district.id} 
+            position={[district.lat, district.lng]}
+            eventHandlers={{
+              click: () => onDistrictClick && onDistrictClick(district.id),
+            }}
+          >
+            <Popup className="font-sans">
+              <div className="p-1">
+                <h3 className="font-bold text-primary">{district.name}</h3>
+                <p className="text-xs text-outline mt-1">Click to view risk</p>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
+    </div>
+  );
+}

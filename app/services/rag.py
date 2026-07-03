@@ -195,7 +195,7 @@ class RagService:
             FROM embeddings e
             JOIN document_chunks dc ON e.chunk_id = dc.id
             JOIN documents d ON dc.document_id = d.id
-            WHERE d.category IN :categories
+            WHERE d.category = ANY(:categories)
             ORDER BY e.embedding <=> :vector
             LIMIT :k
         """)

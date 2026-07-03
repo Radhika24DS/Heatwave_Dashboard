@@ -1,195 +1,158 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useNavigate, Link } from 'react-router-dom';
-import useAuth from '../../hooks/useAuth';
-import { Mail, Lock, AlertTriangle, Eye, EyeOff, ChevronRight } from 'lucide-react';
-import Card from '../../components/ui/Card';
-import Logo from '../../components/layout/Logo';
+import { useAuthStore } from '../../store/useAuthStore';
+import { authService } from '../../services/auth.service';
+import { Eye, EyeOff, Flame, Lock, Mail, ArrowRight, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
-const loginSchema = z.object({
-  email: z.string().min(1, 'Email is required').email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-});
-
-const TEST_ACCOUNTS = [
-  { label: 'Admin',     email: 'admin@heatwave.org',      color: 'text-purple-400' },
-  { label: 'Authority', email: 'authority@heatwave.org',  color: 'text-blue-400'   },
-  { label: 'Research',  email: 'researcher@heatwave.org', color: 'text-cyan-400'   },
-  { label: 'Farmer',    email: 'farmer@heatwave.org',     color: 'text-risk-low'   },
-  { label: 'Traveller', email: 'traveller@heatwave.org',  color: 'text-risk-moderate' },
-  { label: 'Public',    email: 'public@heatwave.org',     color: 'text-brand-muted' },
-];
-
-const LoginPage = () => {
-  const { login } = useAuth();
-  const navigate = useNavigate();
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [apiError, setApiError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
-  });
+  const { setToken } = useAuthStore();
+  const navigate = useNavigate();
 
-  const onSubmit = async (data) => {
-    setApiError('');
+  const handleLogin = async (e) => {
+    e.preventDefault();
     setLoading(true);
-    const result = await login(data.email, data.password);
-    setLoading(false);
-
-    if (result.success) {
-      const token = localStorage.getItem('access_token');
-      if (token) {
-        const role = JSON.parse(atob(token.split('.')[1])).role;
-        const r = role.toUpperCase();
-        if (r === 'ADMIN') navigate('/dashboard/admin');
-        else if (r === 'AUTHORITY') navigate('/dashboard/authority');
-        else if (r === 'RESEARCH') navigate('/research');
-        else if (r === 'FARMER') navigate('/farmer');
-        else if (r === 'TRAVELLER') navigate('/traveller');
-        else navigate('/dashboard/public');
-      } else navigate('/dashboard/public');
-    } else {
-      setApiError(result.error);
+    try {
+      const res = await authService.login(email, password);
+      if (res.status === 'success') {
+        setToken(res.data.access_token);
+        toast.success('Welcome back!');
+        navigate('/app/dashboard');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Invalid email or password.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const fillTestAccount = (email) => {
-    setValue('email', email);
-    setValue('password', 'password123');
-    setApiError('');
-  };
-
   return (
-    <div className="min-h-screen flex bg-brand-bg overflow-hidden">
-      {/* ── Left panel: branding visual ─────────────────────── */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center relative p-12 bg-heat-dark overflow-hidden">
-        {/* Radial heat glow */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-brand-primary/15 blur-[100px]" />
-          <div className="absolute top-1/4 right-0 w-[300px] h-[300px] rounded-full bg-brand-yellow/10 blur-[80px]" />
-        </div>
-
-        {/* Content */}
-        <div className="relative z-10 text-center max-w-sm">
-          <div className="flex h-20 w-20 mx-auto items-center justify-center rounded-2xl bg-brand-primary/10 border border-brand-primary/30 heat-ring mb-8">
-            <Logo className="h-12 w-12" />
-          </div>
-          <h1 className="font-heading text-4xl font-black mb-3 gradient-text">
-            HeatWave AI
-          </h1>
-          <p className="text-brand-muted text-lg mb-8 leading-relaxed">
-            Karnataka Early Warning System
-          </p>
-
-          {/* Feature list */}
-          <div className="space-y-3 text-left">
-            {[
-              '🛰️  Real-time AOD & IMD meteorological data',
-              '🤖  AI-based 3-day heatwave forecasting',
-              '📋  Role-tailored advisories for all users',
-              '🗺️  District-level risk mapping of Karnataka',
-            ].map((f) => (
-              <div key={f} className="flex items-start gap-2 text-sm text-brand-muted">
-                <span>{f}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* PG badge */}
-          <div className="mt-10 inline-flex items-center gap-2 bg-brand-card border border-brand-border rounded-full px-4 py-2 text-xs text-brand-muted">
-            <span className="h-1.5 w-1.5 rounded-full bg-risk-low animate-pulse" />
-            PG Research Project · Department of CS
-          </div>
-        </div>
+    <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden" style={{ background: 'linear-gradient(135deg, #1a0a00 0%, #3d1200 35%, #7c2d00 65%, #9d4300 100%)' }}>
+      {/* Animated background orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-5%] w-80 h-80 rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #ff6b35, transparent)', animation: 'pulse 4s ease-in-out infinite' }} />
+        <div className="absolute bottom-[-10%] right-[-5%] w-96 h-96 rounded-full opacity-15" style={{ background: 'radial-gradient(circle, #ff9500, transparent)', animation: 'pulse 5s ease-in-out infinite 1s' }} />
+        <div className="absolute top-[40%] right-[10%] w-64 h-64 rounded-full opacity-10" style={{ background: 'radial-gradient(circle, #ff4500, transparent)', animation: 'pulse 6s ease-in-out infinite 2s' }} />
+        {/* Grid lines */}
+        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
       </div>
 
-      {/* ── Right panel: login form ──────────────────────────── */}
-      <div className="flex flex-1 flex-col items-center justify-center px-6 py-12 lg:px-12 relative">
-        <div className="w-full max-w-sm relative z-10">
-          {/* Mobile logo */}
-          <div className="lg:hidden text-center mb-8">
-            <div className="flex h-14 w-14 mx-auto items-center justify-center rounded-xl bg-brand-primary/10 border border-brand-primary/30 heat-ring mb-3">
-              <Logo className="h-7 w-7" />
-            </div>
-            <h1 className="font-heading text-2xl font-black gradient-text">HeatWave AI EWS</h1>
+      <div className="relative w-full max-w-md">
+        {/* Logo / Brand */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 shadow-lg" style={{ background: 'linear-gradient(135deg, #ff6b35, #9d4300)', boxShadow: '0 8px 32px rgba(255,107,53,0.4)' }}>
+            <Flame size={32} color="white" />
           </div>
-          <h2 className="font-heading text-2xl font-bold text-brand-text mb-1">Welcome back</h2>
-          <p className="text-sm text-brand-muted mb-8">Sign in to your account to continue</p>
-          <Card title="Sign In" className="glass-sm p-6">
-            {/* Error banner */}
-            {apiError && (
-              <div className="mb-5 flex items-center gap-2 rounded-xl bg-risk-extreme/10 border border-risk-extreme/30 px-4 py-3 text-sm text-red-300">
-                <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-                {apiError}
-              </div>
-            )}
-            <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-              {/* Email */}
-              <div>
-                <label htmlFor="login-email" className="block text-xs font-semibold text-brand-muted mb-1.5 uppercase tracking-wider">Email</label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-faint pointer-events-none" />
-                  <input id="login-email" type="email" placeholder="you@example.com"
-                    className={`w-full pl-10 pr-4 py-2.5 bg-brand-card border rounded-xl text-sm text-brand-text placeholder-brand-faint focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-brand-primary/50 transition-all ${errors.email ? 'border-risk-extreme' : 'border-brand-border'}`}
-                    {...register('email')}
-                  />
-                </div>
-                {errors.email && <p className="mt-1 text-xs text-risk-extreme">{errors.email.message}</p>}
-              </div>
-              {/* Password */}
-              <div>
-                <label htmlFor="login-password" className="block text-xs font-semibold text-brand-muted mb-1.5 uppercase tracking-wider">Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-faint pointer-events-none" />
-                  <input id="login-password" type={showPassword ? 'text' : 'password'} placeholder="••••••••"
-                    className={`w-full pl-10 pr-10 py-2.5 bg-brand-card border rounded-xl text-sm text-brand-text placeholder-brand-faint focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-brand-primary/50 transition-all ${errors.password ? 'border-risk-extreme' : 'border-brand-border'}`}
-                    {...register('password')}
-                  />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-faint hover:text-brand-muted transition-colors">
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-                {errors.password && <p className="mt-1 text-xs text-risk-extreme">{errors.password.message}</p>}
-              </div>
-              {/* Submit */}
-              <button type="submit" disabled={loading}
-                className="mt-2 w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-bold text-white bg-brand-primary hover:bg-brand-mid focus:outline-none focus:ring-2 focus:ring-brand-primary/50 disabled:opacity-50 transition-all shadow-heat">
-                {loading ? (
-                  <>
-                    <span className="h-3.5 w-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                    Authenticating…
-                  </>
-                ) : (
-                  <>Sign In <ChevronRight className="h-4 w-4" /></>
-                )}
-              </button>
-            </form>
-            <p className="mt-6 text-center text-sm text-brand-muted">
-              Don't have an account? <Link to="/register" className="font-semibold text-brand-primary hover:text-brand-mid transition-colors">Register here</Link>
-            </p>
-            {/* Quick-fill test accounts */}
-            <div className="mt-8 glass-sm p-4">
-              <p className="text-[10px] text-brand-faint uppercase font-bold tracking-widest mb-3">🎓 Viva / Demo Test Accounts (auto-fill)</p>
-              <div className="grid grid-cols-3 gap-1.5">
-                {TEST_ACCOUNTS.map(({ label, email, color }) => (
-                  <button key={email} type="button" onClick={() => fillTestAccount(email)}
-                    className="py-1.5 px-2 rounded-lg bg-brand-card hover:bg-brand-border border border-brand-border text-[11px] font-semibold transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] hover:border-brand-primary/40 text-center">
-                    <span className={color}>{label}</span>
-                  </button>
-                ))}
-              </div>
-              <p className="mt-2 text-[10px] text-brand-faint text-center">Password auto-filled as <code className="text-brand-muted">password123</code></p>
-            </div>
-          </Card>
+          <h1 className="text-4xl font-black text-white tracking-tight">HEWS</h1>
+          <p className="text-sm mt-1" style={{ color: 'rgba(255,219,201,0.7)' }}>Heatwave Early Warning System</p>
         </div>
+
+        {/* Card */}
+        <div className="rounded-2xl p-8 shadow-2xl" style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.12)' }}>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-white">Welcome back</h2>
+            <p className="text-sm mt-1" style={{ color: 'rgba(255,219,201,0.6)' }}>Sign in to access your dashboard</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-5">
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{ color: 'rgba(255,219,201,0.8)' }}>Email Address</label>
+              <div className="relative">
+                <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'rgba(255,219,201,0.5)' }} />
+                <input
+                  id="login-email"
+                  type="email"
+                  required
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl text-sm transition-all duration-200 focus:outline-none"
+                  style={{
+                    background: 'rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(255,219,201,0.2)',
+                    color: 'white',
+                  }}
+                  onFocus={(e) => { e.target.style.border = '1px solid rgba(255,107,53,0.6)'; e.target.style.boxShadow = '0 0 0 3px rgba(255,107,53,0.15)'; }}
+                  onBlur={(e) => { e.target.style.border = '1px solid rgba(255,219,201,0.2)'; e.target.style.boxShadow = 'none'; }}
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{ color: 'rgba(255,219,201,0.8)' }}>Password</label>
+              <div className="relative">
+                <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'rgba(255,219,201,0.5)' }} />
+                <input
+                  id="login-password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 pr-12 py-3 rounded-xl text-sm transition-all duration-200 focus:outline-none"
+                  style={{
+                    background: 'rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(255,219,201,0.2)',
+                    color: 'white',
+                  }}
+                  onFocus={(e) => { e.target.style.border = '1px solid rgba(255,107,53,0.6)'; e.target.style.boxShadow = '0 0 0 3px rgba(255,107,53,0.15)'; }}
+                  onBlur={(e) => { e.target.style.border = '1px solid rgba(255,219,201,0.2)'; e.target.style.boxShadow = 'none'; }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(s => !s)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors"
+                  style={{ color: 'rgba(255,219,201,0.5)' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = 'white'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,219,201,0.5)'}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit */}
+            <button
+              id="login-submit"
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-60"
+              style={{
+                background: loading ? 'rgba(157,67,0,0.7)' : 'linear-gradient(135deg, #ff6b35, #9d4300)',
+                color: 'white',
+                boxShadow: '0 4px 20px rgba(255,107,53,0.35)',
+              }}
+              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.transform = 'translateY(-1px)'; if (!loading) e.currentTarget.style.boxShadow = '0 8px 28px rgba(255,107,53,0.45)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(255,107,53,0.35)'; }}
+            >
+              {loading ? <Loader2 size={18} className="animate-spin" /> : <ArrowRight size={18} />}
+              {loading ? 'Signing in…' : 'Sign In'}
+            </button>
+          </form>
+
+          <p className="mt-6 text-center text-sm" style={{ color: 'rgba(255,219,201,0.5)' }}>
+            Don't have an account?{' '}
+            <Link to="/register" className="font-bold transition-colors" style={{ color: '#ff9500' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = '#ffb347'}
+              onMouseLeave={(e) => e.currentTarget.style.color = '#ff9500'}
+            >
+              Register now
+            </Link>
+          </p>
+        </div>
+
+        {/* Footer note */}
+        <p className="text-center text-xs mt-6" style={{ color: 'rgba(255,219,201,0.3)' }}>
+          Karnataka Heatwave EWS · AI-Powered Climate Intelligence
+        </p>
       </div>
     </div>
   );
-};
-
-export default LoginPage;
+}
