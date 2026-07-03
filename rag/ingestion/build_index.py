@@ -13,10 +13,9 @@ from pathlib import Path
 import yaml
 from typing import List
 
-from langchain.schema.document import Document
+from langchain_core.documents import Document
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
-
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from rag.config import FAISS_INDEX_DIR, EMBEDDING_MODEL
 
 
@@ -80,9 +79,8 @@ def build_faiss_index() -> None:
             # Skip problematic files but surface the issue for debugging
             print(f"Warning: skipping {md_path}: {exc}")
 
-    # Initialise embeddings (CPU‑friendly model)
-    embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
-
+    # Initialise embeddings (Google Gemini)
+    embeddings = GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL)
     # Build FAISS vector store
     vectorstore = FAISS.from_documents(documents, embeddings)
 

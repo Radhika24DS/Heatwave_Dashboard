@@ -1,6 +1,6 @@
 import logging
 from datetime import date, timedelta
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, Request, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api import deps
@@ -20,6 +20,7 @@ prediction_service = PredictionService()
 async def generate_heatwave_forecast(
     request: Request,
     payload: PredictionRequest,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(deps.require_roles([UserRole.ADMIN, UserRole.AUTHORITY, UserRole.RESEARCH])),
     db: AsyncSession = Depends(get_db)
 ):
@@ -41,7 +42,9 @@ async def generate_heatwave_forecast(
         district_id=payload.district_id,
         forecast_date=forecast_date,
         user_id=current_user.id,
-        client_ip=client_ip
+        user_role=current_user.role,
+        client_ip=client_ip,
+        background_tasks=background_tasks
     )
     
     return standard_response(

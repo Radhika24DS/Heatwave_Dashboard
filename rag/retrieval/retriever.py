@@ -12,8 +12,8 @@ from pathlib import Path
 from typing import List, Optional
 
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain.schema.document import Document
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_core.documents import Document
 
 from rag.config import FAISS_INDEX_DIR, EMBEDDING_MODEL, TOP_K, SIMILARITY_THRESHOLD
 
@@ -44,8 +44,8 @@ class AdvisoryRetriever:
     """
 
     def __init__(self) -> None:
-        # Initialise the embedding model (CPU‑friendly)
-        self.embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
+        # Initialise the embedding model (Google Gemini)
+        self.embeddings = GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL)
         # Load the FAISS index from disk – must exist before first query
         index_path = Path(FAISS_INDEX_DIR)
         if not index_path.exists():

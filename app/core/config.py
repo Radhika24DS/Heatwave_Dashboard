@@ -38,6 +38,13 @@ class Settings(BaseSettings):
     # The complete connection URL
     DATABASE_URL: str = ""
 
+    # Supabase Credentials
+    SUPABASE_URL: str = ""
+    SUPABASE_SERVICE_ROLE_KEY: str = ""
+
+    # Google Gemini Key
+    GEMINI_API_KEY: str = ""
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

@@ -4,21 +4,49 @@ from datetime import date
 from typing import Dict, Tuple
 import joblib
 import numpy as np
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, BackgroundTasks
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
+from app.db.session import SessionLocal
 from app.models.location import District
 from app.models.prediction import HeatwavePrediction
 from app.models.forecast import Forecast
 from app.models.alert import Alert
 from app.models.log import SystemLog
-from app.models.enums import RiskLevel, AlertStatus
+from app.models.enums import RiskLevel, AlertStatus, UserRole, AdvisoryRole
 from app.services.weather import WeatherService
 from app.services.features import FeatureBuilderService
+from app.services.rag import RagService
 
 logger = logging.getLogger(__name__)
+
+async def _run_rag_generation(
+    query: str,
+    role: AdvisoryRole,
+    district_name: str,
+    current_weather: str,
+    severity_tier: str,
+    alert_level: str,
+    risk_level_enum: RiskLevel
+):
+    """Background task to generate and save an advisory using a separate DB session."""
+    rag_service = RagService()
+    async with SessionLocal() as session:
+        try:
+            await rag_service.retrieve_and_generate(
+                db=session,
+                query=query,
+                role=role,
+                district_name=district_name,
+                current_weather=current_weather,
+                severity_tier=severity_tier,
+                alert_level=alert_level,
+                risk_level_enum=risk_level_enum
+            )
+        except Exception as e:
+            logger.error(f"Background RAG generation failed: {e}")
 
 class PredictionService:
     """
@@ -52,7 +80,9 @@ class PredictionService:
         district_id: int,
         forecast_date: date,
         user_id: int = None,
-        client_ip: str = None
+        user_role: UserRole = None,
+        client_ip: str = None,
+        background_tasks: BackgroundTasks = None
     ) -> Dict:
         """
         Orchestrates weather forecast retrieval, feature engineering, classification,
@@ -229,12 +259,37 @@ class PredictionService:
                 detail="Database write operation failed during forecasting."
             )
             
-        # 7. Construct Placeholder Advisory (full RAG comes in Phase 7)
-        advisory_msg = (
-            "1. Hydration: Drink plenty of water throughout the day. Avoid alcohol and caffeine.\n"
-            "2. Shading: Stay indoors or under heavy shade during peak sunshine hours (11:00 AM - 4:00 PM).\n"
-            "3. Agriculture & Animal Welfare: Schedule farming activities in early morning. Ensure cattle have wet bedding, shade, and fresh drinking water."
-        )
+        # 7. Trigger Asynchronous Advisory Generation
+        # Convert UserRole to AdvisoryRole
+        advisory_role = AdvisoryRole.PUBLIC
+        if user_role == UserRole.FARMER:
+            advisory_role = AdvisoryRole.FARMER
+        elif user_role == UserRole.TRAVELLER:
+            advisory_role = AdvisoryRole.TRAVELLER
+            
+        current_weather_str = f"Temp: {tempmax:.1f}C, Heat Index: {target_heat_index:.1f}C, Humidity: {weather_data['humidity']}%"
+        query_str = f"heatwave safety advice for {alert_level} conditions"
+        
+        if background_tasks and risk_level_enum != RiskLevel.LOW:
+            logger.info(f"Triggering background RAG advisory generation for {district.name}")
+            background_tasks.add_task(
+                _run_rag_generation,
+                query=query_str,
+                role=advisory_role,
+                district_name=district.name,
+                current_weather=current_weather_str,
+                severity_tier=severity_tier,
+                alert_level=alert_level,
+                risk_level_enum=risk_level_enum
+            )
+            advisory_msg = "Your customized advisory is currently being generated and will be available shortly."
+            source_info = "HEWS Generative AI (Generating...)"
+        else:
+            advisory_msg = (
+                "1. Hydration: Drink plenty of water throughout the day.\n"
+                "2. Shading: Stay indoors or under heavy shade during peak sunshine hours (11:00 AM - 4:00 PM)."
+            )
+            source_info = "HEWS Standard Placeholder"
         
         response_payload = {
             "district_id": district.id,
@@ -267,9 +322,9 @@ class PredictionService:
                 "message": alert_message if alert_message else "No active heatwave warnings."
             },
             "advisory": {
-                "target_demographic": "PUBLIC, FARMER, TRAVELLER",
+                "target_demographic": advisory_role.value if isinstance(advisory_role, AdvisoryRole) else str(advisory_role),
                 "message": advisory_msg,
-                "source": "HEWS Climatological Standard Advisory Placeholder"
+                "source": source_info
             }
         }
         

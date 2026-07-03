@@ -14,7 +14,7 @@ from app.models.enums import UserRole
 logger = logging.getLogger(__name__)
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl=f"{settings.API_V1_STR}/auth/login",
+    tokenUrl=f"{settings.API_V1_STR}/auth/swagger-login",
     auto_error=False
 )
 

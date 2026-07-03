@@ -10,5 +10,5 @@ class Embedding(Base):
     chunk_id: Mapped[int] = mapped_column(
         BigInteger, ForeignKey("document_chunks.id", ondelete="CASCADE"), nullable=False, unique=True, index=True
     )
-    # sentence-transformers/all-MiniLM-L6-v2 produces 384 dimensions
-    embedding: Mapped[Vector] = mapped_column(Vector(384), nullable=False)
+    # Google Gemini gemini-embedding-2 produces 3072 dimensions
+    embedding: Mapped[Vector] = mapped_column(Vector(3072), nullable=False)

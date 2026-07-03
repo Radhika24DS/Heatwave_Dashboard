@@ -136,3 +136,33 @@ async def login(
         },
         message="Login successful"
     )
+
+from fastapi.security import OAuth2PasswordRequestForm
+
+@router.post("/swagger-login")
+async def swagger_login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Dedicated endpoint for Swagger UI authentication.
+    Returns the exact JSON format required by OAuth2PasswordBearer.
+    """
+    result = await db.execute(select(User).where(User.email == form_data.username))
+    user = result.scalars().first()
+    
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User account is inactive"
+        )
+        
+    token = create_access_token(user)
+    return {"access_token": token, "token_type": "bearer"}
