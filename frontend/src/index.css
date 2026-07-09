@@ -2,67 +2,52 @@
 
 @theme {
   /* ── Primary / Brand ── */
-  --color-primary: #9d4300;
-  --color-on-primary: #ffffff;
-  --color-primary-container: #ffdbc9;
-  --color-on-primary-container: #331000;
+  --color-primary: #f97316;
+  --color-primary-dark: #d97706;
+  --color-primary-darker: #b45309;
+  --color-secondary: #9d4300;
+  --color-accent: #dc2626;
+  --color-success: #22c55e;
+  --color-warning: #eab308;
 
-  /* ── Secondary ── */
-  --color-secondary: #77574e;
-  --color-on-secondary: #ffffff;
-  --color-secondary-container: #ffdad4;
-  --color-on-secondary-container: #2c150f;
-
-  /* ── Tertiary ── */
-  --color-tertiary: #6b5d2f;
-  --color-on-tertiary: #ffffff;
-  --color-tertiary-container: #f4e0a4;
-  --color-on-tertiary-container: #231a00;
-
-  /* ── Error ── */
-  --color-error: #ba1a1a;
-  --color-on-error: #ffffff;
-  --color-error-container: #ffdad6;
-  --color-on-error-container: #410002;
-
-  /* ── Surfaces ── */
-  --color-background: #fffbff;
-  --color-on-background: #201a17;
-  --color-surface: #fffbff;
-  --color-on-surface: #201a17;
-  --color-surface-variant: #f5ded5;
-  --color-on-surface-variant: #53433d;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #fef1ea;
-  --color-surface-container: #f8e5db;
-  --color-surface-container-high: #f2dfd5;
-  --color-surface-container-highest: #ecdad0;
-
-  /* ── Outline ── */
-  --color-outline: #9c8880;
-  --color-outline-variant: #d8c2b8;
+  /* ── Semantic Colors ── */
+  --color-background: #fafaf9;
+  --color-surface: #ffffff;
+  --color-surface-container: #f5f1ed;
+  --color-on-background: #1c1917;
+  --color-border: #d6ccc4;
+  --color-error: #dc2626;
 
   /* ── Heatwave risk tiers ── */
-  --color-heatwave-normal:  #16a34a;
-  --color-heatwave-watch:   #ca8a04;
-  --color-heatwave-warning: #ea580c;
+  --color-heatwave-normal:  #22c55e;
+  --color-heatwave-watch:   #eab308;
+  --color-heatwave-warning: #f97316;
   --color-heatwave-extreme: #dc2626;
 
   /* ── Radius ── */
-  --radius-full: 0.75rem;
+  --radius-full: 9999px;
   --radius-card: 1rem;
   --radius-chip: 0.5rem;
 
   /* ── Shadows ── */
-  --shadow-heat:        0 2px 8px  rgba(157, 67,  0, 0.15);
-  --shadow-heat-lg:     0 4px 20px rgba(157, 67,  0, 0.25);
-  --shadow-heat-glow:   0 4px 24px rgba(249, 115, 22, 0.18);
-  --shadow-heat-glow-lg:0 8px 40px rgba(249, 115, 22, 0.25);
-  --shadow-card:        0 1px 4px  rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 1px 2px rgba(249, 115, 22, 0.08);
+  --shadow-md: 0 4px 8px rgba(249, 115, 22, 0.12);
+  --shadow-lg: 0 12px 24px rgba(249, 115, 22, 0.15);
+  --shadow-heat-glow: 0 4px 24px rgba(249, 115, 22, 0.18);
+  --shadow-heat-glow-lg: 0 8px 40px rgba(249, 115, 22, 0.25);
+  --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.08);
 
   /* ── Animations ── */
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-heat-wave: heat-wave 4s ease-in-out infinite;
 }
+
+@keyframes heat-wave {
+  0% { transform: translateY(0) scale(1); opacity: 0.8; }
+  50% { transform: translateY(-5px) scale(1.02); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 0.8; }
+}
+
 
 /* ── Auth page gradient background ── */
 .bg-auth-bg {

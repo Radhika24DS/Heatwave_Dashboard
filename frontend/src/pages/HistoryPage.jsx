@@ -6,7 +6,7 @@ import { History, ChevronUp, ChevronDown, Search } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis,
-  Tooltip, CartesianGrid, Legend
+  Tooltip, CartesianGrid, Legend, BarChart, Bar, Cell
 } from 'recharts';
 
 const RISK_COLORS = {
@@ -97,6 +97,23 @@ export default function HistoryPage() {
     return data;
   }, [records, search, sortCol, sortDir]);
 
+  // Compute risk level distribution from filtered records
+  const distributionData = useMemo(() => {
+    const counts = { LOW: 0, MODERATE: 0, HIGH: 0, EXTREME: 0 };
+    filtered.forEach(r => {
+      const lvl = (r.risk_level || 'LOW').toUpperCase();
+      if (counts[lvl] !== undefined) {
+        counts[lvl]++;
+      }
+    });
+    return [
+      { name: 'Low', count: counts.LOW, fill: '#16a34a' },
+      { name: 'Moderate', count: counts.MODERATE, fill: '#ca8a04' },
+      { name: 'High', count: counts.HIGH, fill: '#ea580c' },
+      { name: 'Extreme', count: counts.EXTREME, fill: '#dc2626' }
+    ];
+  }, [filtered]);
+
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
@@ -141,37 +158,65 @@ export default function HistoryPage() {
       )}
 
       {/* Trend Chart */}
+      {/* Charts Grid */}
       {!loading && chartData.length > 0 && (
-        <div className="bg-surface rounded-2xl border border-surface-variant p-6 shadow-card">
-          <h2 className="text-lg font-bold text-on-surface mb-1">Risk Score Trend</h2>
-          <p className="text-xs text-outline mb-4">Maximum daily risk score across selected district (last 30 days)</p>
-          <div className="h-52">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-                <defs>
-                  <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#9d4300" stopOpacity={0.35} />
-                    <stop offset="95%" stopColor="#9d4300" stopOpacity={0.0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9c8880' }} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: '#9c8880' }} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #d8c2b8', borderRadius: 8 }}
-                  formatter={v => [`${v}%`, 'Risk Score']}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="score"
-                  name="Risk Score"
-                  stroke="#9d4300"
-                  fill="url(#scoreGrad)"
-                  strokeWidth={2.5}
-                  dot={{ r: 2, fill: '#9d4300' }}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Risk Score Trend Chart */}
+          <div className="bg-surface rounded-2xl border border-surface-variant p-6 shadow-card">
+            <h2 className="text-lg font-bold text-on-surface mb-1">Risk Score Trend</h2>
+            <p className="text-xs text-outline mb-4">Maximum daily risk score across selected district (last 30 days)</p>
+            <div className="h-52">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                  <defs>
+                    <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor="#9d4300" stopOpacity={0.35} />
+                      <stop offset="95%" stopColor="#9d4300" stopOpacity={0.0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9c8880' }} />
+                  <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: '#9c8880' }} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#fff', border: '1px solid #d8c2b8', borderRadius: 8 }}
+                    formatter={v => [`${v}%`, 'Risk Score']}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="score"
+                    name="Risk Score"
+                    stroke="#9d4300"
+                    fill="url(#scoreGrad)"
+                    strokeWidth={2.5}
+                    dot={{ r: 2, fill: '#9d4300' }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Risk Level Distribution Chart */}
+          <div className="bg-surface rounded-2xl border border-surface-variant p-6 shadow-card">
+            <h2 className="text-lg font-bold text-on-surface mb-1">Risk Level Distribution</h2>
+            <p className="text-xs text-outline mb-4">Frequency of predicted risk levels in the current timeframe</p>
+            <div className="h-52">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={distributionData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+                  <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#9c8880' }} />
+                  <YAxis tick={{ fontSize: 10, fill: '#9c8880' }} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#fff', border: '1px solid #d8c2b8', borderRadius: 8 }}
+                    formatter={v => [v, 'Predictions']}
+                  />
+                  <Bar dataKey="count" radius={[8, 8, 0, 0]}>
+                    {distributionData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
       )}

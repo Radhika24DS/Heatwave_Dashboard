@@ -27,6 +27,8 @@ def create_access_token(user: User) -> str:
         "name": user.name,
         "email": user.email,
         "role": user.role.value,
+        "district_id": user.district_id,
+        "crop_type": user.crop_type,
         "exp": expire
     }
     encoded_jwt = jwt.encode(
@@ -35,6 +37,7 @@ def create_access_token(user: User) -> str:
         algorithm=settings.JWT_ALGORITHM
     )
     return encoded_jwt
+
 
 @router.post("/register")
 async def register(
@@ -67,7 +70,9 @@ async def register(
         email=user_in.email,
         hashed_password=hashed_pwd,
         role=role,
-        is_active=user_in.is_active
+        is_active=user_in.is_active,
+        district_id=user_in.district_id,
+        crop_type=user_in.crop_type
     )
     
     db.add(new_user)
@@ -90,6 +95,7 @@ async def register(
         data=user_data,
         message="Registration successful"
     )
+
 
 @router.post("/login")
 async def login(
@@ -130,12 +136,15 @@ async def login(
                 "email": user.email,
                 "role": user.role.value,
                 "is_active": user.is_active,
+                "district_id": user.district_id,
+                "crop_type": user.crop_type,
                 "created_at": user.created_at.isoformat() if user.created_at else None,
                 "updated_at": user.updated_at.isoformat() if user.updated_at else None
             }
         },
         message="Login successful"
     )
+
 
 from fastapi.security import OAuth2PasswordRequestForm
 

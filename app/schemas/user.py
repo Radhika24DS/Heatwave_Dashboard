@@ -8,6 +8,8 @@ class UserBase(BaseModel):
     email: EmailStr = Field(..., description="User's login/notification email")
     role: UserRole = Field(..., description="System access role")
     is_active: bool = Field(True, description="Whether the user account is active")
+    district_id: Optional[int] = Field(None, description="Preferred district ID")
+    crop_type: Optional[str] = Field(None, max_length=100, description="Crop type for farmers")
 
 class UserCreate(UserBase):
     password: str = Field(..., min_length=8, max_length=100, description="Plain text password")
@@ -18,6 +20,8 @@ class UserUpdate(BaseModel):
     role: Optional[UserRole] = None
     is_active: Optional[bool] = None
     password: Optional[str] = Field(None, min_length=8, max_length=100)
+    district_id: Optional[int] = None
+    crop_type: Optional[str] = Field(None, max_length=100)
 
 class UserInDBBase(UserBase):
     id: int
@@ -32,4 +36,5 @@ class User(UserInDBBase):
 class UserLogin(BaseModel):
     email: EmailStr = Field(..., description="User's login email")
     password: str = Field(..., min_length=8, max_length=100, description="Plain text password")
+
 
