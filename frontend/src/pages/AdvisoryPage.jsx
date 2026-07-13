@@ -118,6 +118,7 @@ export default function AdvisoryPage() {
   const [advisory, setAdvisory] = useState(null);
   const [error, setError] = useState(null);
   const [history, setHistory] = useState([]);
+  const [persona, setPersona] = useState(user?.role || 'PUBLIC');
 
   const districtName = KARNATAKA_DISTRICTS.find(d => d.id === districtId)?.name || 'Unknown';
 
@@ -130,7 +131,7 @@ export default function AdvisoryPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await advisoryService.getAdvisory(q, user?.role, districtName);
+      const res = await advisoryService.getAdvisory(q, persona, districtName);
       const adv = res.data;
       setAdvisory(adv);
       setHistory(prev => [{ query: q, advisory: adv, timestamp: new Date().toLocaleTimeString('en-IN') }, ...prev.slice(0, 4)]);
@@ -139,7 +140,7 @@ export default function AdvisoryPage() {
     } finally {
       setLoading(false);
     }
-  }, [query, user?.role, districtName]);
+  }, [query, persona, districtName]);
 
   const handlePreset = (presetQuery) => {
     setQuery(presetQuery);
@@ -151,7 +152,7 @@ export default function AdvisoryPage() {
     fetchAdvisory(query);
   };
 
-  const roleCfg = ROLE_CONFIG[user?.role?.toUpperCase()] || ROLE_CONFIG.PUBLIC;
+  const roleCfg = ROLE_CONFIG[persona?.toUpperCase()] || ROLE_CONFIG.PUBLIC;
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-[1440px] mx-auto">
@@ -167,10 +168,27 @@ export default function AdvisoryPage() {
           </div>
         </div>
 
-        {/* Role badge */}
-        <div className="flex items-center gap-2 px-4 py-2 rounded-full" style={{ background: roleCfg.bg, color: roleCfg.color, border: `1px solid ${roleCfg.color}30` }}>
-          {roleCfg.icon}
-          <span className="text-sm font-bold">Personalized for {roleCfg.label}</span>
+        {/* Dynamic persona selection / role badge */}
+        <div className="flex items-center gap-2">
+          {user?.role === 'PUBLIC' ? (
+            <div className="flex items-center gap-2.5 bg-white border border-stone-250 rounded-full px-3.5 py-1.5 shadow-sm">
+              <span className="text-xs font-black uppercase text-stone-500">Demographic:</span>
+              <select
+                value={persona}
+                onChange={(e) => setPersona(e.target.value)}
+                className="bg-transparent text-xs font-black text-[#9d4300] focus:outline-none cursor-pointer"
+              >
+                <option value="PUBLIC">👥 General Public</option>
+                <option value="FARMER">🌾 Farmer</option>
+                <option value="TRAVELLER">✈️ Traveller</option>
+              </select>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full" style={{ background: roleCfg.bg, color: roleCfg.color, border: `1px solid ${roleCfg.color}30` }}>
+              {roleCfg.icon}
+              <span className="text-sm font-bold">Personalized for {roleCfg.label}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -179,7 +197,7 @@ export default function AdvisoryPage() {
         <Info size={16} className="flex-shrink-0 mt-0.5" />
         <p>
           Ask any heatwave-related question. The AI retrieves relevant content from our expert knowledge base 
-          and generates a personalized advisory tailored to your role as <strong>{roleCfg.label}</strong>.
+          and generates a personalized advisory tailored to your preference as <strong>{roleCfg.label}</strong>.
           Select a district for location-specific context.
         </p>
       </div>

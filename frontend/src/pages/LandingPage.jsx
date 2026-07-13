@@ -1,297 +1,323 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
-import { Flame, Shield, BarChart3, Bell, Map, Zap, ArrowRight, Users, Activity } from 'lucide-react';
+import Logo from '../components/layout/Logo';
+import { 
+  Map, 
+  LayoutDashboard, 
+  BarChart3, 
+  Bell, 
+  ArrowRight, 
+  ChevronDown, 
+  ChevronUp, 
+  CheckCircle2, 
+  Sparkles,
+  HelpCircle
+} from 'lucide-react';
 
 const FEATURES = [
   {
-    icon: <Zap size={22} />,
-    title: 'AI-Powered Forecasts',
-    desc: 'XGBoost ML model predicts heatwave risk up to 7 days in advance across 31 Karnataka districts.',
-    color: '#ff6b35',
+    icon: <Map className="w-6 h-6 text-[#f97316]" />,
+    title: 'Real-Time Risk Map',
+    desc: 'See current heatwave risk levels color-coded across all 31 districts of Karnataka instantly.',
   },
   {
-    icon: <Bell size={22} />,
-    title: 'Real-Time Alerts',
-    desc: 'Instant heatwave warnings with severity tiers — from Watch to Extreme — issued automatically.',
-    color: '#ff9500',
+    icon: <LayoutDashboard className="w-6 h-6 text-[#f97316]" />,
+    title: 'Role-Based Dashboards',
+    desc: 'Personalized layouts and safety insights tailored for citizens, farmers, travelers, and meteorologists.',
   },
   {
-    icon: <Map size={22} />,
-    title: 'Interactive Risk Map',
-    desc: 'Color-coded district map with live risk scores and weather data at your fingertips.',
-    color: '#ea580c',
+    icon: <BarChart3 className="w-6 h-6 text-[#f97316]" />,
+    title: 'AI Explanations',
+    desc: 'Understand predictions through advanced SHAP feature contribution charts and confidence ratings.',
   },
   {
-    icon: <BarChart3 size={22} />,
-    title: 'Research Analytics',
-    desc: 'SHAP feature analysis, ROC curves, confusion matrices and model metrics for researchers.',
-    color: '#dc2626',
-  },
-  {
-    icon: <Shield size={22} />,
-    title: 'Role-Based Advisories',
-    desc: 'Personalized AI-generated guidance for farmers, travellers, authorities, and the public.',
-    color: '#9d4300',
-  },
-  {
-    icon: <Activity size={22} />,
-    title: 'Historical Trends',
-    desc: '60-day prediction history with searchable records, risk trend charts, and export support.',
-    color: '#7c2d00',
+    icon: <Bell className="w-6 h-6 text-[#f97316]" />,
+    title: 'Instant Alerts',
+    desc: 'Automated warnings triggered when extreme heat thresholds are crossed, with direct authority approvals.',
   },
 ];
 
-const STATS = [
-  { value: '31', label: 'Districts Covered' },
-  { value: '7-Day', label: 'Forecast Window' },
-  { value: '86%', label: 'Model Accuracy' },
-  { value: '24/7', label: 'Live Monitoring' },
+const TESTIMONIALS = [
+  {
+    quote: "This system saved my cotton crops during the intense 2024 heatwave. The night irrigation advice was crucial.",
+    name: "Devendra Gowda",
+    role: "Farmer",
+    district: "Raichur",
+    avatarBg: "bg-orange-100 text-orange-600"
+  },
+  {
+    quote: "We use the traveler route planner daily for our delivery fleet to avoid heat hotspots between Bangalore and Mysore.",
+    name: "Aisha Rahaman",
+    role: "Logistics Manager",
+    district: "Bengaluru",
+    avatarBg: "bg-red-100 text-red-600"
+  },
+  {
+    quote: "As district meteorologists, being able to edit and instantly dispatch alerts to 50K+ citizens changes the game.",
+    name: "Dr. K. Sridhar",
+    role: "District Meteorologist",
+    district: "Kalaburagi",
+    avatarBg: "bg-amber-100 text-amber-600"
+  }
 ];
 
-const ROLES = [
-  { icon: '🌾', label: 'Farmers', desc: 'Crop & livestock safety' },
-  { icon: '✈️', label: 'Travellers', desc: 'Route planning' },
-  { icon: '🏛️', label: 'Authorities', desc: 'Disaster response' },
-  { icon: '🔬', label: 'Researchers', desc: 'Scientific analysis' },
+const FAQS = [
+  {
+    q: "What is SAMVIT?",
+    a: "SAMVIT (संवित्) meaning 'Consciousness or Awareness' is Karnataka's premier AI-powered Heatwave Early Warning System. It provides real-time climate predictions, role-based safety advisories, and instant emergency notifications."
+  },
+  {
+    q: "How accurate are the heat predictions?",
+    a: "Predictions are powered by an advanced XGBoost model trained on historical IMD climate data and satellite aerosol observations. The model achieves an overall classification accuracy of 86.3%."
+  },
+  {
+    q: "Who is this platform for?",
+    a: "SAMVIT offers customized dashboards for 6 key roles: general citizens (public), agricultural workers (farmers), tourists and commuters (travelers), climate scientists (researchers), municipal coordinators (authorities), and platform engineers (admins)."
+  },
+  {
+    q: "Is my personal data safe?",
+    a: "Yes. All user accounts, locations, and preferences are securely stored using industry-standard encryption protocols on our Supabase-powered backend database."
+  }
 ];
 
 export default function LandingPage() {
   const { isAuthenticated } = useAuthStore();
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [openFaq, setOpenFaq] = useState(null);
 
   if (isAuthenticated()) {
     return <Navigate to="/app/dashboard" replace />;
   }
 
-  return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#fffbff', fontFamily: "'Inter', sans-serif" }}>
+  const toggleFaq = (index) => {
+    setOpenFaq(openFaq === index ? null : index);
+  };
 
-      {/* ── Navbar ── */}
-      <header className="sticky top-0 z-50 flex items-center justify-between px-8 py-4" style={{ background: 'rgba(255,251,255,0.85)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(157,67,0,0.12)' }}>
-        <div className="flex items-center gap-2.5">
-          <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'linear-gradient(135deg, #ff6b35, #9d4300)' }}>
-            <Flame size={20} color="white" />
+  return (
+    <div className="min-h-screen flex flex-col bg-[#fafaf9] text-[#1c1917]" style={{ fontFamily: "'Inter', sans-serif" }}>
+
+      {/* ── Header / Navbar ── */}
+      <header className="sticky top-0 z-50 flex items-center justify-between px-6 md:px-12 py-4 bg-white/90 backdrop-blur-md border-b border-[#d6ccc4]/60">
+        <div className="flex items-center gap-3">
+          <div className="p-1 bg-[#f97316]/10 rounded-xl border border-[#f97316]/25">
+            <Logo className="h-9 w-9" />
           </div>
-          <span className="text-2xl font-black" style={{ color: '#9d4300' }}>HEWS</span>
+          <span className="text-2xl font-black text-[#9d4300] tracking-tight">SAMVIT</span>
         </div>
-        <nav className="hidden md:flex items-center gap-8">
-          {['Features', 'Analytics', 'Who it\'s for'].map(item => (
-            <a key={item} href={`#${item.toLowerCase().replace(/[^a-z]/g,'')}`}
-              className="text-sm font-medium transition-colors"
-              style={{ color: '#77574e' }}
-              onMouseEnter={e => e.currentTarget.style.color = '#9d4300'}
-              onMouseLeave={e => e.currentTarget.style.color = '#77574e'}
-            >{item}</a>
-          ))}
+        <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-stone-600">
+          <a href="#features" className="hover:text-[#f97316] transition-colors">Features</a>
+          <a href="#testimonials" className="hover:text-[#f97316] transition-colors">Testimonials</a>
+          <a href="#faq" className="hover:text-[#f97316] transition-colors">About & FAQ</a>
         </nav>
         <div className="flex items-center gap-3">
-          <Link to="/login"
-            className="px-4 py-2 rounded-full text-sm font-bold transition-all duration-200"
-            style={{ color: '#9d4300', background: 'transparent' }}
-            onMouseEnter={e => e.currentTarget.style.background = '#ffdbc9'}
-            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-          >Sign In</Link>
-          <Link to="/register"
-            className="px-5 py-2 rounded-full text-sm font-bold transition-all duration-200 flex items-center gap-1.5"
-            style={{ background: 'linear-gradient(135deg, #ff6b35, #9d4300)', color: 'white', boxShadow: '0 4px 16px rgba(255,107,53,0.35)' }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'none'}
-          >
-            Get Started <ArrowRight size={14} />
+          <Link to="/login" className="px-4 py-2 text-sm font-bold text-[#9d4300] hover:bg-[#f97316]/10 rounded-full transition-all duration-200">
+            Sign In
+          </Link>
+          <Link to="/register" className="px-5 py-2.5 bg-gradient-to-r from-[#f97316] to-[#dc2626] hover:from-[#d97706] hover:to-[#b45309] text-white text-sm font-bold rounded-full transition-all duration-300 shadow-md hover:-translate-y-0.5">
+            Get Started
           </Link>
         </div>
       </header>
 
-      {/* ── Hero ── */}
-      <section className="relative flex flex-col items-center justify-center text-center px-6 py-28 overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a0a00 0%, #3d1200 35%, #7c2d00 65%, #9d4300 100%)' }}>
-        {/* Background orbs */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full opacity-25" style={{ background: 'radial-gradient(circle, #ff6b35, transparent)' }} />
-          <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #ff9500, transparent)' }} />
-          <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+      {/* ── Hero Section ── */}
+      <section className="relative flex flex-col items-center justify-center text-center px-6 pt-20 pb-24 overflow-hidden bg-gradient-to-b from-[#fef3c7] via-[#fed7aa]/50 to-[#fafaf9]">
+        {/* Animated heatwave ripples background */}
+        <div className="absolute inset-0 pointer-events-none opacity-40">
+          <div className="absolute top-[10%] left-[5%] w-[400px] h-[400px] rounded-full bg-gradient-to-r from-[#fed7aa] to-[#fef3c7] filter blur-3xl animate-pulse" />
+          <div className="absolute bottom-[10%] right-[5%] w-[500px] h-[500px] rounded-full bg-gradient-to-r from-[#fef3c7] to-[#fed7aa] filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+          {/* Subtle wavy vector background simulation */}
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:24px_24px]" />
         </div>
 
-        <div className="relative max-w-4xl">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold mb-8" style={{ background: 'rgba(255,107,53,0.2)', border: '1px solid rgba(255,107,53,0.35)', color: '#ff9500' }}>
-            <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#ff6b35' }} />
-            Live AI Monitoring · Karnataka, India
+        <div className="relative max-w-4xl flex flex-col items-center z-10">
+          {/* Tagline Badge */}
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full text-xs font-black mb-8 bg-[#fed7aa] text-[#b45309] border border-[#f97316]/20 shadow-sm animate-heat-wave">
+            <Sparkles className="w-3.5 h-3.5" />
+            LIVE TEMPERATURE MONITORING & ML WARNINGS FOR KARNATAKA
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight">
-            Predict Heatwaves.
-            <br />
-            <span style={{ WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', background: 'linear-gradient(90deg, #ff9500, #ff6b35, #ffdbc9)' }}>
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-[#1c1917] leading-[1.1] mb-6">
+            Predict Heatwaves.<br />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#d97706] via-[#f97316] to-[#dc2626]">
               Save Lives.
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed" style={{ color: 'rgba(255,219,201,0.75)' }}>
-            Karnataka's first AI-powered Heatwave Early Warning System. ML predictions, 
-            real-time alerts, RAG-powered advisories — all in one platform.
+          <p className="text-base sm:text-xl text-stone-700 max-w-2xl mx-auto leading-relaxed mb-12 font-medium">
+            Real-time AI-powered early warnings and tailored advisories to protect citizens, farmers, and travelers across Karnataka.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/register"
-              className="px-8 py-4 rounded-full font-bold text-lg flex items-center gap-2.5 transition-all duration-300"
-              style={{ background: 'linear-gradient(135deg, #ff6b35, #ff9500)', color: 'white', boxShadow: '0 8px 32px rgba(255,107,53,0.45)' }}
-              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(255,107,53,0.55)'; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(255,107,53,0.45)'; }}
-            >
-              Join the Platform <ArrowRight size={20} />
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
+            <Link to="/register" className="w-full sm:w-auto px-8 py-4 bg-[#f97316] hover:bg-[#d97706] text-white text-lg font-bold rounded-full transition-all duration-300 shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 hover:-translate-y-0.5">
+              Join Now <ArrowRight size={20} />
             </Link>
-            <Link to="/login"
-              className="px-8 py-4 rounded-full font-bold text-lg transition-all duration-300"
-              style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.25)', backdropFilter: 'blur(8px)' }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.18)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-            >
-              Sign In
-            </Link>
+            <a href="#features" className="w-full sm:w-auto px-8 py-4 border-2 border-stone-800 hover:bg-[#1c1917]/5 text-stone-800 text-lg font-bold rounded-full transition-all duration-300 flex items-center justify-center">
+              Learn More
+            </a>
           </div>
         </div>
 
-        {/* Stats bar */}
-        <div className="relative mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl w-full">
-          {STATS.map(s => (
-            <div key={s.label} className="text-center">
-              <p className="text-3xl font-black text-white">{s.value}</p>
-              <p className="text-xs mt-1" style={{ color: 'rgba(255,219,201,0.6)' }}>{s.label}</p>
-            </div>
-          ))}
+        {/* Floating Sun Graphic with Glow */}
+        <div className="mt-16 w-32 h-32 relative flex items-center justify-center bg-white rounded-full shadow-2xl border border-orange-100 animate-spin-slow duration-10000">
+          <div className="absolute inset-0 bg-[#f97316] opacity-5 rounded-full blur-xl animate-pulse" />
+          <Logo className="w-20 h-20" />
         </div>
       </section>
 
-      {/* ── Features ── */}
-      <section id="features" className="py-24 px-6" style={{ background: '#fffbff' }}>
+      {/* ── Features Section ── */}
+      <section id="features" className="py-24 px-6 md:px-12 bg-white">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <span className="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full" style={{ color: '#9d4300', background: '#ffdbc9' }}>Platform Features</span>
-            <h2 className="text-4xl font-black mt-4 mb-4" style={{ color: '#201a17' }}>Everything you need to stay safe</h2>
-            <p className="text-lg max-w-xl mx-auto" style={{ color: '#77574e' }}>
-              Built for Karnataka's climate challenges, powered by state-of-the-art machine learning.
+            <span className="text-xs font-black uppercase tracking-widest text-[#f97316] bg-[#f97316]/10 px-3.5 py-1.5 rounded-full">
+              Innovative Features
+            </span>
+            <h2 className="text-3xl md:text-5xl font-black mt-4 mb-4 text-[#1c1917]">
+              Protecting Communities via Climate Intelligence
+            </h2>
+            <p className="text-base sm:text-lg max-w-2xl mx-auto text-stone-600 font-medium">
+              Everything you need to stay safe during Karnataka summers, backed by custom XGBoost models.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {FEATURES.map(f => (
-              <div key={f.title} className="group p-6 rounded-2xl transition-all duration-300 cursor-default"
-                style={{ background: '#fff', border: '1px solid #f5ded5', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(157,67,0,0.12)'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)'; }}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {FEATURES.map((f, i) => (
+              <div 
+                key={i} 
+                className="p-6 rounded-2xl bg-[#f5f1ed] border border-[#d6ccc4]/40 hover:bg-white hover:border-[#f97316]/30 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
               >
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-all duration-300"
-                  style={{ background: `${f.color}18`, color: f.color }}>
+                <div className="w-12 h-12 rounded-xl bg-white border border-[#d6ccc4]/30 flex items-center justify-center mb-5 shadow-sm">
                   {f.icon}
                 </div>
-                <h3 className="text-lg font-bold mb-2" style={{ color: '#201a17' }}>{f.title}</h3>
-                <p className="text-sm leading-relaxed" style={{ color: '#77574e' }}>{f.desc}</p>
+                <h3 className="text-lg font-bold mb-3 text-[#1c1917]">{f.title}</h3>
+                <p className="text-sm leading-relaxed text-stone-600">{f.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Analytics highlight ── */}
-      <section id="analytics" className="py-24 px-6" style={{ background: 'linear-gradient(135deg, #1a0a00 0%, #3d1200 50%, #7c2d00 100%)' }}>
-        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-16">
-          <div className="flex-1">
-            <span className="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full" style={{ color: '#ff9500', background: 'rgba(255,149,0,0.15)', border: '1px solid rgba(255,149,0,0.3)' }}>
-              Research-Grade Analytics
-            </span>
-            <h2 className="text-4xl font-black text-white mt-5 mb-5 leading-tight">
-              Transparent AI.<br />
-              <span style={{ color: '#ff9500' }}>Explainable results.</span>
-            </h2>
-            <p className="text-lg mb-8 leading-relaxed" style={{ color: 'rgba(255,219,201,0.7)' }}>
-              Don't just get predictions — understand them. SHAP feature importance charts, ROC curves, 
-              confusion matrices, and real-time probability distributions give full ML transparency.
+      {/* ── Testimonials Section ── */}
+      <section id="testimonials" className="py-24 px-6 md:px-12 bg-[#f5f1ed]/50">
+        <div className="max-w-4xl mx-auto text-center">
+          <span className="text-xs font-black uppercase tracking-widest text-[#9d4300] bg-orange-100 px-3.5 py-1.5 rounded-full">
+            Real Impact
+          </span>
+          <h2 className="text-3xl md:text-5xl font-black mt-4 mb-16 text-[#1c1917]">
+            Trusted Across Karnataka
+          </h2>
+
+          <div className="bg-white rounded-3xl p-8 md:p-12 border border-[#d6ccc4]/60 shadow-md relative">
+            {/* Quote Icon */}
+            <span className="absolute -top-6 left-12 text-7xl text-[#f97316]/20 font-serif">“</span>
+
+            <p className="text-lg md:text-xl text-stone-800 italic leading-relaxed mb-8">
+              {TESTIMONIALS[activeTestimonial].quote}
             </p>
-            <ul className="space-y-3">
-              {['SHAP Feature Impact Analysis', 'ROC Curve & AUC Metrics', 'Confusion Matrix Heatmap', 'Risk Class Probability Distribution', 'Model Version Tracking'].map(item => (
-                <li key={item} className="flex items-center gap-3 text-sm" style={{ color: 'rgba(255,219,201,0.8)' }}>
-                  <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,107,53,0.25)', border: '1px solid rgba(255,107,53,0.4)' }}>
-                    <div className="w-2 h-2 rounded-full" style={{ background: '#ff6b35' }} />
-                  </div>
-                  {item}
-                </li>
+
+            <div className="flex flex-col items-center gap-3">
+              <div className={`w-12 h-12 rounded-full ${TESTIMONIALS[activeTestimonial].avatarBg} flex items-center justify-center font-black text-lg border border-orange-200 shadow-inner`}>
+                {TESTIMONIALS[activeTestimonial].name.charAt(0)}
+              </div>
+              <div>
+                <h4 className="font-bold text-[#1c1917]">{TESTIMONIALS[activeTestimonial].name}</h4>
+                <p className="text-xs font-semibold text-stone-500 uppercase tracking-widest">
+                  {TESTIMONIALS[activeTestimonial].role} · {TESTIMONIALS[activeTestimonial].district} District
+                </p>
+              </div>
+            </div>
+
+            {/* Slider Dots */}
+            <div className="flex justify-center gap-2 mt-8">
+              {TESTIMONIALS.map((_, i) => (
+                <button 
+                  key={i}
+                  onClick={() => setActiveTestimonial(i)}
+                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${activeTestimonial === i ? 'w-6 bg-[#f97316]' : 'bg-[#d6ccc4]'}`}
+                />
               ))}
-            </ul>
-          </div>
-          <div className="flex-1 grid grid-cols-2 gap-4">
-            {[
-              { label: 'Weighted F1 Score', value: '84.7%', color: '#ff6b35' },
-              { label: 'Overall Accuracy', value: '86.3%', color: '#ff9500' },
-              { label: 'Extreme Precision', value: '88.0%', color: '#dc2626' },
-              { label: 'Low Class F1', value: '92.0%', color: '#16a34a' },
-            ].map(m => (
-              <div key={m.label} className="p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <p className="text-3xl font-black" style={{ color: m.color }}>{m.value}</p>
-                <p className="text-xs mt-1" style={{ color: 'rgba(255,219,201,0.5)' }}>{m.label}</p>
-              </div>
-            ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── Who it's for ── */}
-      <section id="whoitsfor" className="py-24 px-6" style={{ background: '#fffbff' }}>
-        <div className="max-w-5xl mx-auto text-center">
-          <span className="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full" style={{ color: '#9d4300', background: '#ffdbc9' }}>Role-Based Access</span>
-          <h2 className="text-4xl font-black mt-4 mb-4" style={{ color: '#201a17' }}>Tailored for every stakeholder</h2>
-          <p className="text-lg mb-14" style={{ color: '#77574e' }}>One platform, personalised for your specific needs and responsibilities.</p>
+      {/* ── FAQ Section ── */}
+      <section id="faq" className="py-24 px-6 md:px-12 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-16">
+            <span className="text-xs font-black uppercase tracking-widest text-[#f97316] bg-[#f97316]/10 px-3.5 py-1.5 rounded-full">
+              Got Questions?
+            </span>
+            <h2 className="text-3xl md:text-5xl font-black mt-4 mb-4 text-[#1c1917]">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-sm sm:text-base text-stone-600 font-medium">
+              Everything you need to know about the platform and deployment details.
+            </p>
+          </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-            {ROLES.map(r => (
-              <div key={r.label} className="p-6 rounded-2xl text-center transition-all duration-300"
-                style={{ background: '#fff', border: '1px solid #f5ded5', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(157,67,0,0.12)'; e.currentTarget.style.borderColor = '#ffdbc9'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)'; e.currentTarget.style.borderColor = '#f5ded5'; }}
-              >
-                <div className="text-4xl mb-3">{r.icon}</div>
-                <p className="font-bold" style={{ color: '#201a17' }}>{r.label}</p>
-                <p className="text-xs mt-1" style={{ color: '#9c8880' }}>{r.desc}</p>
-              </div>
-            ))}
+          <div className="space-y-4">
+            {FAQS.map((faq, idx) => {
+              const isOpen = openFaq === idx;
+              return (
+                <div 
+                  key={idx} 
+                  className="rounded-2xl border border-[#d6ccc4]/60 bg-[#fafaf9] overflow-hidden transition-all duration-300"
+                >
+                  <button
+                    onClick={() => toggleFaq(idx)}
+                    className="w-full px-6 py-5 text-left flex items-center justify-between font-bold text-stone-800 hover:text-[#9d4300]"
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <HelpCircle size={18} className="text-[#f97316]" />
+                      {faq.q}
+                    </span>
+                    {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  </button>
+                  {isOpen && (
+                    <div className="px-6 pb-6 text-sm text-stone-600 leading-relaxed border-t border-[#d6ccc4]/30 pt-4 bg-white">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* ── CTA ── */}
-      <section className="py-24 px-6 text-center" style={{ background: 'linear-gradient(135deg, #ff9500 0%, #ff6b35 50%, #9d4300 100%)' }}>
+      {/* ── CTA / Signup Section ── */}
+      <section className="py-20 px-6 text-center bg-gradient-to-r from-[#f97316] via-[#d97706] to-[#dc2626] text-white">
         <div className="max-w-2xl mx-auto">
-          <Users size={48} color="white" className="mx-auto mb-6 opacity-80" />
-          <h2 className="text-4xl font-black text-white mb-5">Ready to protect your community?</h2>
-          <p className="text-lg mb-10 opacity-80 text-white">
-            Join thousands of Karnataka citizens, farmers, and officials using HEWS to stay ahead of extreme heat.
+          <CheckCircle2 size={48} className="mx-auto mb-6 opacity-90 animate-bounce" />
+          <h2 className="text-3xl sm:text-4xl font-black mb-5">Be Aware. Stay Protected.</h2>
+          <p className="text-base sm:text-lg mb-8 opacity-90 font-medium">
+            Join the platform today to monitor districts, get route safety insights, and receive real-time notifications.
           </p>
-          <Link to="/register"
-            className="inline-flex items-center gap-2.5 px-10 py-4 rounded-full font-bold text-lg transition-all duration-300"
-            style={{ background: 'white', color: '#9d4300', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.25)'; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.2)'; }}
-          >
-            Create Free Account <ArrowRight size={20} />
+          <Link to="/register" className="inline-block px-10 py-4 bg-white text-[#9d4300] hover:bg-orange-50 text-lg font-bold rounded-full shadow-lg shadow-black/10 hover:shadow-black/20 hover:-translate-y-0.5 transition-all duration-300">
+            Create Free Account
           </Link>
         </div>
       </section>
 
       {/* ── Footer ── */}
-      <footer className="py-8 px-8 flex flex-col md:flex-row items-center justify-between gap-4" style={{ background: '#201a17', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="flex items-center gap-2.5">
-          <div className="flex items-center justify-center w-7 h-7 rounded-lg" style={{ background: 'linear-gradient(135deg, #ff6b35, #9d4300)' }}>
-            <Flame size={15} color="white" />
+      <footer className="py-8 px-6 md:px-12 flex flex-col sm:flex-row items-center justify-between gap-6 bg-[#1c1917] text-stone-400 border-t border-stone-800">
+        <div className="flex items-center gap-3">
+          <div className="p-1 bg-white/10 rounded-lg">
+            <Logo className="h-6 w-6" />
           </div>
-          <span className="font-black text-white text-lg">HEWS</span>
+          <span className="font-black text-white text-lg tracking-tight">SAMVIT</span>
         </div>
-        <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
-          Heatwave Early Warning System · Karnataka, India · AI-Powered Climate Intelligence
+        <p className="text-xs text-stone-500 font-medium">
+          SAMVIT Heatwave Early Warning System · Karnataka, India · AI-Powered Climate Intelligence
         </p>
-        <div className="flex items-center gap-4">
-          <Link to="/login" className="text-xs font-medium transition-colors" style={{ color: 'rgba(255,255,255,0.4)' }}>Sign In</Link>
-          <Link to="/register" className="text-xs font-medium transition-colors" style={{ color: 'rgba(255,255,255,0.4)' }}>Register</Link>
+        <div className="flex items-center gap-4 text-xs font-semibold">
+          <Link to="/login" className="hover:text-white transition-colors">Sign In</Link>
+          <span>·</span>
+          <Link to="/register" className="hover:text-white transition-colors">Register</Link>
         </div>
       </footer>
     </div>
   );
 }
+

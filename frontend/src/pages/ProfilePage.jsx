@@ -10,9 +10,6 @@ function RolePill({ role }) {
   const styles = {
     ADMIN:     'bg-error-container     text-on-error-container',
     AUTHORITY: 'bg-tertiary-container  text-on-tertiary-container',
-    RESEARCH:  'bg-secondary-container text-on-secondary-container',
-    FARMER:    'bg-primary-container   text-on-primary-container',
-    TRAVELLER: 'bg-surface-container   text-on-surface',
     PUBLIC:    'bg-surface-variant     text-outline',
   };
   return (

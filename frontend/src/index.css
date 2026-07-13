@@ -2,147 +2,91 @@
 
 @theme {
   /* ── Primary / Brand ── */
-  --color-primary: #ff6b35;
-  --color-on-primary: #ffffff;
-  --color-primary-container: #4a1c06;
-  --color-on-primary-container: #ffebd9;
+  --color-primary: #f97316;
+  --color-primary-dark: #d97706;
+  --color-primary-darker: #b45309;
+  --color-secondary: #9d4300;
+  --color-accent: #dc2626;
+  --color-success: #22c55e;
+  --color-warning: #eab308;
 
-  /* ── Secondary ── */
-  --color-secondary: #ffb59f;
-  --color-on-secondary: #561f0c;
-  --color-secondary-container: #723520;
-  --color-on-secondary-container: #ffdbd1;
+  /* ── Semantic Colors ── */
+  --color-background: #fafaf9;
+  --color-surface: #ffffff;
+  --color-surface-container: #f5f1ed;
+  --color-on-background: #1c1917;
+  --color-border: #d6ccc4;
+  --color-error: #dc2626;
 
-  /* ── Tertiary ── */
-  --color-tertiary: #ecd28f;
-  --color-on-tertiary: #3e2e00;
-  --color-tertiary-container: #574300;
-  --color-on-tertiary-container: #ffe8b5;
-
-  /* ── Error ── */
-  --color-error: #ffb4ab;
-  --color-on-error: #690005;
-  --color-error-container: #93000a;
-  --color-on-error-container: #ffdad6;
-
-  /* ── Surfaces (Dark Glassmorphic Warmth) ── */
-  --color-background: #0f0704;
-  --color-on-background: #f1dfd8;
-  --color-surface: rgba(30, 15, 8, 0.55);
-  --color-on-surface: #ffebd9;
-  --color-surface-variant: rgba(55, 30, 18, 0.35);
-  --color-on-surface-variant: #ffdbc9;
-  --color-surface-container-lowest: #0c0503;
-  --color-surface-container-low: #1c0e09;
-  --color-surface-container: #26140d;
-  --color-surface-container-high: #321c13;
-  --color-surface-container-highest: #3e2419;
-
-  /* ── Outline ── */
-  --color-outline: #a08c84;
-  --color-outline-variant: #53433d;
-
-  /* ── Heatwave Risk Tiers ── */
+  /* ── Heatwave risk tiers ── */
   --color-heatwave-normal:  #22c55e;
   --color-heatwave-watch:   #eab308;
   --color-heatwave-warning: #f97316;
-  --color-heatwave-extreme: #ef4444;
+  --color-heatwave-extreme: #dc2626;
 
   /* ── Radius ── */
   --radius-full: 9999px;
-  --radius-card: 1.25rem;
-  --radius-chip: 0.625rem;
+  --radius-card: 1rem;
+  --radius-chip: 0.5rem;
 
   /* ── Shadows ── */
-  --shadow-heat:        0 4px 12px rgba(255, 107, 53, 0.08);
-  --shadow-heat-lg:     0 8px 32px rgba(255, 107, 53, 0.15);
-  --shadow-heat-glow:   0 0 20px rgba(255, 107, 53, 0.15);
-  --shadow-heat-glow-lg:0 0 35px rgba(239, 68, 68, 0.3);
-  --shadow-card:        0 4px 20px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 1px 2px rgba(249, 115, 22, 0.08);
+  --shadow-md: 0 4px 8px rgba(249, 115, 22, 0.12);
+  --shadow-lg: 0 12px 24px rgba(249, 115, 22, 0.15);
+  --shadow-heat-glow: 0 4px 24px rgba(249, 115, 22, 0.18);
+  --shadow-heat-glow-lg: 0 8px 40px rgba(249, 115, 22, 0.25);
+  --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.08);
 
   /* ── Animations ── */
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-heat-wave: heat-wave 4s ease-in-out infinite;
 }
+
+@keyframes heat-wave {
+  0% { transform: translateY(0) scale(1); opacity: 0.8; }
+  50% { transform: translateY(-5px) scale(1.02); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 0.8; }
+}
+
 
 /* ── Auth page gradient background ── */
 .bg-auth-bg {
-  background: linear-gradient(135deg, #0f0704 0%, #200f07 50%, #3e1b09 100%);
+  background: linear-gradient(135deg, #fff7f3 0%, #ffdbc9 40%, #f5ded5 100%);
 }
 
 @layer utilities {
   .heat-glow-card {
     background-color: var(--color-surface);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
     border-radius: var(--radius-card);
-    border: 1px solid rgba(255, 107, 53, 0.18);
     box-shadow: var(--shadow-heat-glow);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  
-  .heat-glow-card:hover {
-    border-color: rgba(255, 107, 53, 0.35);
-    box-shadow: 0 0 28px rgba(255, 107, 53, 0.22);
-    transform: translateY(-2px);
-  }
-
   .glass-panel {
-    background-color: rgba(25, 12, 7, 0.5);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    background-color: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-radius: var(--radius-card);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: var(--shadow-card);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   }
-  
-  .glass-panel:hover {
-    border-color: rgba(255, 255, 255, 0.15);
-  }
-
   .pulse-urgent {
     animation: var(--animate-pulse-slow);
     box-shadow: var(--shadow-heat-glow-lg);
-    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    background-color: var(--color-error);
     color: #ffffff;
-    border: 1px solid rgba(239, 68, 68, 0.4);
   }
-
   .risk-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.35rem 0.85rem;
+    padding: 0.25rem 0.75rem;
     border-radius: var(--radius-chip);
-    font-weight: 700;
-    font-size: 0.8rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 0.875rem;
   }
 }
 
-/* ── Custom Scrollbar ── */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: #0f0704;
-}
-::-webkit-scrollbar-thumb {
-  background: #3e1b09;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #ff6b35;
-}
-
 body {
-  background-color: var(--color-background);
-  color: var(--color-on-background);
-  font-family: 'Outfit', 'Inter', sans-serif;
-  background-image: 
-    radial-gradient(circle at 10% 20%, rgba(255, 107, 53, 0.05) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(239, 68, 68, 0.04) 0%, transparent 40%);
-  background-attachment: fixed;
+  background-color: var(--color-surface-variant);
+  color: var(--color-on-surface);
+  font-family: 'Inter', sans-serif;
 }

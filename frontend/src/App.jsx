@@ -34,7 +34,7 @@ function App() {
           <Route
             path="/app"
             element={
-              <ProtectedRoute allowedRoles={['PUBLIC', 'FARMER', 'TRAVELLER', 'RESEARCH', 'AUTHORITY', 'ADMIN']}>
+              <ProtectedRoute allowedRoles={['PUBLIC', 'AUTHORITY', 'ADMIN']}>
                 <DashboardLayout />
               </ProtectedRoute>
             }
@@ -61,7 +61,7 @@ function App() {
             <Route 
               path="research" 
               element={
-                <ProtectedRoute allowedRoles={['RESEARCH', 'AUTHORITY', 'ADMIN']}>
+                <ProtectedRoute allowedRoles={['AUTHORITY', 'ADMIN']}>
                   <ResearchPage />
                 </ProtectedRoute>
               } 
