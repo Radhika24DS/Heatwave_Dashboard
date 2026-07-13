@@ -8,9 +8,7 @@ import toast from 'react-hot-toast';
 
 const ROLES = [
   { value: 'PUBLIC', label: 'Public User (Citizen)', icon: '🏙️' },
-  { value: 'FARMER', label: 'Farmer', icon: '🌾' },
-  { value: 'TRAVELLER', label: 'Traveler / Commuter', icon: '✈️' },
-  { value: 'RESEARCH', label: 'Researcher / Scientist', icon: '🔬' },
+  { value: 'AUTHORITY', label: 'Authority (Govt & Disaster Mgmt)', icon: '🏛️' },
 ];
 
 const CROPS = [
@@ -87,10 +85,6 @@ export default function RegisterPage() {
       toast.error('Password must be at least 8 characters.');
       return;
     }
-    if (role === 'FARMER' && !cropType) {
-      toast.error('Please select your crop type.');
-      return;
-    }
     if (!agreeTerms) {
       toast.error('You must agree to the terms and conditions.');
       return;
@@ -102,7 +96,7 @@ export default function RegisterPage() {
       password,
       role,
       district_id: parseInt(districtId, 10),
-      crop_type: role === 'FARMER' ? cropType : null
+      crop_type: null
     };
 
     startTransition(async () => {
@@ -298,26 +292,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Conditional Crop Selection for Farmer */}
-            {role === 'FARMER' && (
-              <div className="space-y-1 animate-fade-in">
-                <label className="block text-sm font-semibold text-stone-700">Primary Crop Type</label>
-                <select
-                  id="reg-crop"
-                  required
-                  value={cropType}
-                  onChange={e => setCropType(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-white border border-[#d6ccc4] focus:border-[#f97316] focus:ring-2 focus:ring-[#f97316]/10 rounded-xl text-sm font-medium transition-all focus:outline-none cursor-pointer"
-                >
-                  <option value="">Select your primary crop...</option>
-                  {CROPS.map(crop => (
-                    <option key={crop} value={crop}>
-                      🌾 {crop}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+
 
             {/* Terms checkbox */}
             <div className="flex items-start">
