@@ -179,6 +179,32 @@ class PredictionService:
                 alert_level = "Warning"
                 risk_level_enum = RiskLevel.HIGH
                 
+        # Query latest aerosol data for district to display on dashboard
+        from app.models.weather import AerosolData
+        from sqlalchemy import desc
+        aerosol_stmt = (
+            select(AerosolData)
+            .where(AerosolData.district_id == district_id)
+            .order_by(desc(AerosolData.date))
+            .limit(1)
+        )
+        aerosol_res = await db.execute(aerosol_stmt)
+        latest_aerosol = aerosol_res.scalars().first()
+        aod = float(latest_aerosol.aod_value) if latest_aerosol and latest_aerosol.aod_value is not None else 0.25
+        pm25 = float(latest_aerosol.pm25) if latest_aerosol and latest_aerosol.pm25 is not None else 18.5
+        pm10 = float(latest_aerosol.pm10) if latest_aerosol and latest_aerosol.pm10 is not None else 45.0
+
+        # Compute dynamic explanation scores (SHAP-like contributions)
+        factors = [
+            {"feature": "Apparent Heat Index", "impact": round((target_heat_index - 30.0) * 0.045, 3)},
+            {"feature": "Maximum Temperature", "impact": round((tempmax - 30.0) * 0.035, 3)},
+            {"feature": "Aerosol Optical Depth", "impact": round((aod - 0.15) * 0.15, 3)},
+            {"feature": "Relative Humidity", "impact": round((weather_data["humidity"] - 50.0) * 0.003, 3)},
+            {"feature": "Wind Speed", "impact": round(-weather_data["windspeed"] * 0.008, 3)},
+        ]
+        # Sort factors by absolute impact descending
+        factors = sorted(factors, key=lambda x: abs(x["impact"]), reverse=True)
+
         # 6. Database Persistence
         
         # A. Store Prediction in heatwave_predictions
@@ -189,7 +215,7 @@ class PredictionService:
             risk_level=risk_level_enum,
             risk_score=risk_score,
             model_version="1.0.0",
-            shap_values=None,
+            shap_values=factors,
             confidence=confidence
         )
         db.add(prediction_rec)
@@ -224,6 +250,36 @@ class PredictionService:
                 status=AlertStatus.ACTIVE
             )
             db.add(alert_rec)
+            
+            # If risk level is EXTREME, dispatch mock email notification
+            if risk_level_enum == RiskLevel.EXTREME:
+                from app.utils.email import send_mock_email
+                from app.models.user import User
+                
+                recipient_email = "public@test.com"
+                if user_id:
+                    user_res = await db.execute(select(User).where(User.id == user_id))
+                    requesting_user = user_res.scalars().first()
+                    if requesting_user:
+                        recipient_email = requesting_user.email
+                        
+                subject = f"⚠️ EMERGENCY ALERT: Extreme Heatwave in {district.name}!"
+                body = (
+                    f"Dear Resident,\n\n"
+                    f"An EXTREME heatwave emergency alert has been issued for your district, {district.name}, on {forecast_date}.\n\n"
+                    f"Predicted Maximum Temperature: {tempmax:.1f}°C\n"
+                    f"Apparent Heat Index: {target_heat_index:.1f}°C\n"
+                    f"Risk Category: EXTREME Hazard\n\n"
+                    f"HEALTH & SAFETY ADVISORY:\n"
+                    f"- Avoid going outdoors between 11:00 AM and 4:00 PM.\n"
+                    f"- Drink water continuously, even if you do not feel thirsty.\n"
+                    f"- Keep indoor spaces cool using fans, shade, and wet towels.\n"
+                    f"- Look out for symptoms of heat exhaustion: dizziness, nausea, excessive sweating.\n\n"
+                    f"Please consult the HEWS Dashboard for detailed role-specific RAG instructions.\n\n"
+                    f"Stay safe,\n"
+                    f"Karnataka Disaster Management Authority"
+                )
+                send_mock_email(recipient_email, subject, body)
             
         # D. Log the API call in system_logs (reconciled table name from migrations)
         log_details = {
@@ -262,10 +318,10 @@ class PredictionService:
         # 7. Trigger Asynchronous Advisory Generation
         # Convert UserRole to AdvisoryRole
         advisory_role = AdvisoryRole.PUBLIC
-        if user_role == UserRole.FARMER:
-            advisory_role = AdvisoryRole.FARMER
-        elif user_role == UserRole.TRAVELLER:
-            advisory_role = AdvisoryRole.TRAVELLER
+        if user_role == UserRole.AUTHORITY or user_role == "AUTHORITY":
+            advisory_role = AdvisoryRole.AUTHORITY
+        elif user_role == UserRole.ADMIN or user_role == "ADMIN":
+            advisory_role = AdvisoryRole.ADMIN
             
         current_weather_str = f"Temp: {tempmax:.1f}C, Heat Index: {target_heat_index:.1f}C, Humidity: {weather_data['humidity']}%"
         query_str = f"heatwave safety advice for {alert_level} conditions"
@@ -305,7 +361,10 @@ class PredictionService:
                 "solarradiation": weather_data["solarradiation"],
                 "precip": weather_data["precip"],
                 "apparent_heat_index": target_heat_index,
-                "provider": provider_used
+                "provider": provider_used,
+                "aod_value": aod,
+                "pm25": pm25,
+                "pm10": pm10
             },
             "prediction": {
                 "predicted_class": predicted_class,
@@ -314,7 +373,8 @@ class PredictionService:
                 "risk_percent": risk_score * 100,
                 "probabilities": [float(p) for p in y_prob_eval[0]],
                 "confidence": confidence,
-                "model_version": "1.0.0"
+                "model_version": "1.0.0",
+                "top_factors": factors
             },
             "alert": {
                 "alert_level": alert_level,

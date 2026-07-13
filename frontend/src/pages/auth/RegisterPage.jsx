@@ -6,9 +6,6 @@ import toast from 'react-hot-toast';
 
 const ROLES = [
   { value: 'PUBLIC',    label: 'Public',      desc: 'General citizen',          icon: '🏙️' },
-  { value: 'FARMER',   label: 'Farmer',       desc: 'Agriculture & rural',       icon: '🌾' },
-  { value: 'TRAVELLER',label: 'Traveller',    desc: 'Travel planning & safety',  icon: '✈️' },
-  { value: 'RESEARCH', label: 'Researcher',   desc: 'Scientific analytics',      icon: '🔬' },
   { value: 'AUTHORITY',label: 'Authority',    desc: 'Government & disaster mgmt',icon: '🏛️' },
 ];
 

@@ -20,11 +20,11 @@ MOCK_WEATHER = {
 class TestPredictionIntegration(unittest.TestCase):
     def setUp(self):
         timestamp = int(datetime.datetime.now().timestamp())
-        self.research_user_payload = {
-            "name": "Integration Test Research",
-            "email": f"test_research_{timestamp}@ews.org",
+        self.authority_user_payload = {
+            "name": "Integration Test Authority",
+            "email": f"test_authority_{timestamp}@ews.org",
             "password": "securepassword123",
-            "role": "RESEARCH",
+            "role": "AUTHORITY",
             "is_active": True
         }
         self.public_user_payload = {
@@ -43,25 +43,25 @@ class TestPredictionIntegration(unittest.TestCase):
         # Use single context manager to keep event loop alive for database connections
         with TestClient(app) as client:
             
-            # --- 1. USER REGISTRATION (RESEARCH ROLE) ---
-            reg_response = client.post("/api/v1/auth/register", json=self.research_user_payload)
+            # --- 1. USER REGISTRATION (AUTHORITY ROLE) ---
+            reg_response = client.post("/api/v1/auth/register", json=self.authority_user_payload)
             self.assertEqual(reg_response.status_code, 200)
             reg_data = reg_response.json()
             self.assertEqual(reg_data["status"], "success")
-            self.assertEqual(reg_data["data"]["email"], self.research_user_payload["email"])
-            self.assertEqual(reg_data["data"]["role"], "RESEARCH")
+            self.assertEqual(reg_data["data"]["email"], self.authority_user_payload["email"])
+            self.assertEqual(reg_data["data"]["role"], "AUTHORITY")
 
             # --- 2. USER LOGIN ---
             login_payload = {
-                "email": self.research_user_payload["email"],
-                "password": self.research_user_payload["password"]
+                "email": self.authority_user_payload["email"],
+                "password": self.authority_user_payload["password"]
             }
             login_response = client.post("/api/v1/auth/login", json=login_payload)
             self.assertEqual(login_response.status_code, 200)
             login_data = login_response.json()
             self.assertEqual(login_data["status"], "success")
             token = login_data["data"]["access_token"]
-            self.assertEqual(login_data["data"]["user"]["role"], "RESEARCH")
+            self.assertEqual(login_data["data"]["user"]["role"], "AUTHORITY")
 
             # --- 3. ROLE-GATED ACCESS DENIAL (PUBLIC ROLE) ---
             # Register a PUBLIC user
@@ -84,7 +84,7 @@ class TestPredictionIntegration(unittest.TestCase):
             self.assertEqual(pub_pred_response.status_code, 403)
             self.assertIn("Access denied", pub_pred_response.json()["message"])
 
-            # --- 4. END-TO-END PREDICTIONS FLOW (RESEARCH ROLE) ---
+            # --- 4. END-TO-END PREDICTIONS FLOW (AUTHORITY ROLE) ---
             headers = {"Authorization": f"Bearer {token}"}
             pred_response = client.post("/api/v1/predictions/forecast", json=predict_payload, headers=headers)
             self.assertEqual(pred_response.status_code, 200)
@@ -118,7 +118,7 @@ class TestPredictionIntegration(unittest.TestCase):
             
             # Verify advisory structure
             self.assertIn("advisory", data)
-            self.assertEqual(data["advisory"]["target_demographic"], "PUBLIC")
+            self.assertEqual(data["advisory"]["target_demographic"], "AUTHORITY")
             self.assertIn("message", data["advisory"])
 
 if __name__ == '__main__':

@@ -25,12 +25,12 @@ async def generate_heatwave_forecast(
     request: Request,
     payload: PredictionRequest,
     background_tasks: BackgroundTasks,
-    current_user: User = Depends(deps.require_roles([UserRole.ADMIN, UserRole.AUTHORITY, UserRole.RESEARCH])),
+    current_user: User = Depends(deps.require_roles([UserRole.ADMIN, UserRole.AUTHORITY])),
     db: AsyncSession = Depends(get_db)
 ):
     """
     Generates a heatwave risk forecast for a specific district and date.
-    Gates access to ADMIN, AUTHORITY, and RESEARCH roles.
+    Gates access to ADMIN and AUTHORITY roles.
     """
     # Default to tomorrow's date if not specified
     forecast_date = payload.forecast_date
@@ -55,6 +55,47 @@ async def generate_heatwave_forecast(
         status="success",
         data=result,
         message="Heatwave forecasting completed successfully."
+    )
+
+
+@router.post("/multi-forecast")
+async def generate_multi_day_forecast(
+    request: Request,
+    payload: PredictionRequest,
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(deps.require_roles([UserRole.ADMIN, UserRole.AUTHORITY, UserRole.PUBLIC])),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Generates forecast predictions for 3 consecutive days starting from the requested date or today.
+    """
+    district_id = payload.district_id
+    start_date = payload.forecast_date
+    if start_date is None:
+        start_date = date.today()
+        
+    client_ip = request.client.host if request.client else None
+    
+    logger.info(f"User '{current_user.email}' ({current_user.role}) initiated 3-day forecast request for district {district_id} starting {start_date}")
+    
+    results = []
+    for i in range(3):
+        target_date = start_date + timedelta(days=i)
+        res = await prediction_service.predict_and_warn(
+            db=db,
+            district_id=district_id,
+            forecast_date=target_date,
+            user_id=current_user.id,
+            user_role=current_user.role,
+            client_ip=client_ip,
+            background_tasks=background_tasks
+        )
+        results.append(res)
+        
+    return standard_response(
+        status="success",
+        data=results,
+        message="Multi-day heatwave forecast generated successfully."
     )
 
 

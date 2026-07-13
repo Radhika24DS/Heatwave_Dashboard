@@ -227,8 +227,13 @@ class RagService:
             context_str = "\n".join(valid_chunks)
             system_prompt = (
                 "You are an expert meteorological safety advisor. "
-                "Your task is to generate a concise, actionable advisory (150-250 words) based ONLY on the provided context."
-                "Do not hallucinate advice outside the context. Synthesize the context clearly."
+                "Your task is to generate a highly detailed, comprehensive, and structured safety advisory guide (at least 400-500 words) based on the provided context. "
+                "Structure it with clear markdown sections, bullet points, and headings, such as: "
+                "### 1. Immediate Actions & Cooling Measures\n"
+                "### 2. Work/Travel Schedules & Behavioral Guidelines\n"
+                "### 3. Hydration & Dietary Recommendations\n"
+                "### 4. Symptoms of Heat Distress & Emergency Protocols\n\n"
+                "Provide detailed, actionable information for each section. Do not hallucinate advice outside the context, but extract all safety parameters comprehensively."
             )
             
             user_prompt = f"""

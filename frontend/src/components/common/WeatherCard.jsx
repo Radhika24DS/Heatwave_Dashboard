@@ -43,6 +43,20 @@ export default function WeatherCard({ weather }) {
             <p className="font-semibold">{weather.apparent_heat_index}°C</p>
           </div>
         </div>
+        <div className="flex items-center gap-2">
+          <Cloud className="text-primary-container" size={20} />
+          <div>
+            <p className="text-xs text-outline">Aerosol Depth (AOD)</p>
+            <p className="font-semibold">{weather.aod_value !== undefined ? weather.aod_value.toFixed(2) : '0.25'}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Sun className="text-primary" size={20} />
+          <div>
+            <p className="text-xs text-outline">PM2.5 / PM10</p>
+            <p className="font-semibold">{weather.pm25 !== undefined ? weather.pm25.toFixed(1) : '18.5'} / {weather.pm10 !== undefined ? weather.pm10.toFixed(1) : '45.0'} µg/m³</p>
+          </div>
+        </div>
       </div>
     </div>
   );

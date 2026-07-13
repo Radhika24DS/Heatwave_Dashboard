@@ -14,15 +14,18 @@ import EmergencyBanner from '../components/common/EmergencyBanner';
 import ForecastStrip from '../components/common/ForecastStrip';
 import HeatwaveRiskMap from '../components/common/HeatwaveRiskMap';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import XaiFeatureImpactCard from '../components/common/XaiFeatureImpactCard';
 
 export default function Dashboard() {
   const { user } = useAuthStore();
   const [districtId, setDistrictId] = useState(1);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
+  const [forecasts, setForecasts] = useState([]);
   const [alerts, setAlerts] = useState([]);
   
-  // RAG Advisory
+  // Advisory Persona Preference
+  const [advisoryPersona, setAdvisoryPersona] = useState('PUBLIC');
   const [advisoryLoading, setAdvisoryLoading] = useState(false);
   const [advisoryData, setAdvisoryData] = useState(null);
 
@@ -32,8 +35,10 @@ export default function Dashboard() {
       try {
         const today = new Date().toISOString().split('T')[0];
         
-        // Parallel fetching but handle alert failure gracefully (Phase 7 didn't build alerts API)
-        const predRes = await predictionService.getPrediction(districtId, today);
+        // Fetch 3-day forecast predictions
+        const multiRes = await predictionService.getMultiPrediction(districtId, today);
+        const predictionArray = multiRes.data || [];
+        
         let alertRes = { data: [] };
         try {
           alertRes = await alertService.getAlerts(districtId);
@@ -41,7 +46,19 @@ export default function Dashboard() {
           console.warn("Alerts API not implemented yet");
         }
         
-        setData(predRes.data);
+        if (predictionArray.length > 0) {
+          setData(predictionArray[0]); // Today's prediction
+          
+          // Map to forecasts for ForecastStrip
+          const formattedForecasts = predictionArray.map(item => ({
+            date: item.forecast_date,
+            tempmax: item.weather.tempmax,
+            humidity: item.weather.humidity,
+            risk_percent: item.prediction.risk_percent,
+            severity_tier: item.prediction.severity_tier
+          }));
+          setForecasts(formattedForecasts);
+        }
         setAlerts(alertRes.data || []);
       } catch (error) {
         console.error("Dashboard fetch error", error);
@@ -53,14 +70,14 @@ export default function Dashboard() {
     fetchDashboardData();
   }, [districtId]);
 
-  // Only fetch advisory when prediction finishes and if there's a risk.
+  // Fetch advisory when prediction finishes or when advisory persona preference changes
   useEffect(() => {
-    if (data && data.prediction?.risk_score > 0.3) {
+    if (data) {
       const fetchAdvisory = async () => {
         setAdvisoryLoading(true);
         try {
           const reqQuery = `Heatwave advisory for ${data.district_name}`;
-          const res = await advisoryService.getAdvisory(reqQuery, user.role, data.district_name);
+          const res = await advisoryService.getAdvisory(reqQuery, advisoryPersona, data.district_name);
           setAdvisoryData(res.data);
         } catch (error) {
           console.error("Advisory error", error);
@@ -72,7 +89,7 @@ export default function Dashboard() {
     } else {
       setAdvisoryData(null);
     }
-  }, [data, user.role]);
+  }, [data, advisoryPersona]);
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner /></div>;
@@ -94,7 +111,7 @@ export default function Dashboard() {
         <DistrictSelector selectedDistrict={districtId} onChange={setDistrictId} />
       </div>
 
-      {latestAlert && (
+      {latestAlert && latestAlert.alert_level === 'Extreme' && (
         <AlertBadge level={latestAlert.alert_level} message={latestAlert.message} />
       )}
 
@@ -107,6 +124,7 @@ export default function Dashboard() {
             <RiskGauge score={data.prediction.risk_score} percent={data.prediction.risk_percent} />
           )}
           <PredictionCard prediction={data?.prediction} />
+          <XaiFeatureImpactCard factors={data?.prediction?.top_factors} />
         </div>
 
         {/* Middle Column: Weather & Advisories */}
@@ -114,14 +132,26 @@ export default function Dashboard() {
           <WeatherCard weather={data?.weather} />
           
           {(advisoryData || advisoryLoading) && (
-            <div className="mt-2">
+            <div className="bg-surface rounded-card p-6 shadow-card border border-surface-variant flex flex-col gap-4">
+              <div className="flex justify-between items-center pb-2 border-b border-surface-variant">
+                <h3 className="text-lg font-bold text-primary">Safety Advisories</h3>
+                <select
+                  value={advisoryPersona}
+                  onChange={(e) => setAdvisoryPersona(e.target.value)}
+                  className="bg-surface-variant border border-outline-variant text-xs font-semibold rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  <option value="PUBLIC">👥 General Public</option>
+                  <option value="FARMER">🌾 Farmer</option>
+                  <option value="TRAVELLER">✈️ Traveller</option>
+                </select>
+              </div>
               {advisoryLoading ? (
-                <div className="glass-panel p-6 flex flex-col items-center justify-center h-40">
+                <div className="flex flex-col items-center justify-center h-40">
                   <LoadingSpinner />
                   <p className="text-sm mt-3 text-outline">Generating AI Advisory...</p>
                 </div>
               ) : (
-                <AdvisoryCard advisory={advisoryData} role={user.role} />
+                <AdvisoryCard advisory={advisoryData} role={advisoryPersona} />
               )}
             </div>
           )}
@@ -129,7 +159,6 @@ export default function Dashboard() {
 
         {/* Right Column: Interactive Map */}
         <div className="lg:col-span-1 h-full min-h-[400px]">
-           {/* Fallback map or actual react-leaflet map component */}
            <div className="bg-surface rounded-card p-4 h-full border border-surface-variant flex flex-col">
              <h3 className="font-bold text-lg mb-3 text-on-surface">Regional Overview</h3>
              <div className="flex-1 relative rounded-lg overflow-hidden border border-outline-variant">
@@ -142,9 +171,8 @@ export default function Dashboard() {
 
       {/* Bottom Area: Forecast & Role-Specific Widgets */}
       <div className="grid grid-cols-1 gap-6 mt-6">
-        {/* Placeholder for forecast since the real endpoint returns 7 days */}
-        {data?.forecasts && data.forecasts.length > 0 && (
-          <ForecastStrip forecasts={data.forecasts} />
+        {forecasts && forecasts.length > 0 && (
+          <ForecastStrip forecasts={forecasts} />
         )}
       </div>
 

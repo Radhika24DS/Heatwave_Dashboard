@@ -19,7 +19,7 @@ router = APIRouter()
 @router.get("/predictions")
 async def get_research_predictions(
     district_id: int = Query(1, description="District ID to fetch prediction for"),
-    current_user: User = Depends(deps.require_roles([UserRole.RESEARCH, UserRole.AUTHORITY, UserRole.ADMIN])),
+    current_user: User = Depends(deps.require_roles([UserRole.AUTHORITY, UserRole.ADMIN])),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -79,7 +79,7 @@ async def get_research_predictions(
 
 @router.get("/metrics")
 async def get_model_metrics(
-    current_user: User = Depends(deps.require_roles([UserRole.RESEARCH, UserRole.AUTHORITY, UserRole.ADMIN])),
+    current_user: User = Depends(deps.require_roles([UserRole.AUTHORITY, UserRole.ADMIN])),
 ):
     """
     Returns hardcoded XGBoost model performance metrics from the last training run.

@@ -9,6 +9,14 @@ export const predictionService = {
     return response.data;
   },
 
+  getMultiPrediction: async (districtId, date) => {
+    const response = await axiosClient.post('/predictions/multi-forecast', {
+      district_id: districtId,
+      forecast_date: date,
+    });
+    return response.data;
+  },
+
   /**
    * Fetch historical predictions.
    * @param {Object} [params]

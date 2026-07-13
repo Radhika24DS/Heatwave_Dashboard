@@ -133,3 +133,7 @@ venv.bak/
 # Local database / pgAdmin files or pg data (if mounted locally)
 pgdata/
 docker-volumes/
+
+# Thesis / Project Details documentation
+thesis_project_details.md
+

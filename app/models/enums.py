@@ -2,9 +2,6 @@ import enum
 
 class UserRole(str, enum.Enum):
     PUBLIC = "PUBLIC"
-    FARMER = "FARMER"
-    TRAVELLER = "TRAVELLER"
-    RESEARCH = "RESEARCH"
     AUTHORITY = "AUTHORITY"
     ADMIN = "ADMIN"
 

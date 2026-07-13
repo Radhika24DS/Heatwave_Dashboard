@@ -27,14 +27,14 @@ export default function DashboardLayout() {
     navItems.push({ name: 'Admin Panel', path: '/app/admin', icon: ShieldAlert });
   }
   
-  if (['RESEARCH', 'AUTHORITY', 'ADMIN'].includes(user?.role)) {
+  if (['AUTHORITY', 'ADMIN'].includes(user?.role)) {
     navItems.push({ name: 'Research Data', path: '/app/research', icon: FileBarChart });
   }
 
   return (
     <div className="min-h-screen bg-background flex text-on-background">
       {/* Sidebar */}
-      <aside className="w-64 bg-surface-container-lowest border-r border-surface-variant flex-shrink-0 hidden md:flex flex-col shadow-sm z-10">
+      <aside className="w-64 bg-surface border-r border-outline-variant flex-shrink-0 hidden md:flex flex-col shadow-sm z-10 backdrop-blur-md">
         <div className="p-6">
           <h1 className="text-2xl font-black text-primary tracking-tight">HEWS</h1>
           <p className="text-xs text-outline mt-1 font-semibold uppercase">Heatwave Warning Sys</p>
@@ -62,7 +62,7 @@ export default function DashboardLayout() {
           })}
         </nav>
 
-        <div className="p-6 border-t border-surface-variant bg-surface-container-low">
+        <div className="p-6 border-t border-outline-variant bg-surface-container-low">
           <Link
             to="/app/profile"
             onClick={() => setIsMobileMenuOpen(false)}
@@ -88,7 +88,7 @@ export default function DashboardLayout() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Mobile Header */}
-        <header className="md:hidden bg-surface-container-lowest border-b border-surface-variant p-4 flex justify-between items-center z-20 flex-shrink-0">
+        <header className="md:hidden bg-surface border-b border-outline-variant p-4 flex justify-between items-center z-20 flex-shrink-0 backdrop-blur-md">
           <h1 className="text-xl font-black text-primary">HEWS</h1>
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

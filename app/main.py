@@ -26,6 +26,13 @@ async def lifespan(app: FastAPI):
         PredictionService.get_pipeline()
     except Exception as e:
         logger.error(f"Failed to preload model pipeline on startup: {e}")
+    
+    try:
+        from app.services.scheduler import start_scheduler
+        start_scheduler()
+    except Exception as e:
+        logger.error(f"Failed to start background scheduler: {e}")
+        
     yield
     logger.info("Shutting down HEWS FastAPI Server...")
 

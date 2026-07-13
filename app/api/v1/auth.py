@@ -54,7 +54,7 @@ async def register(
         )
         
     # Limit allowed registration roles for security
-    allowed_roles = [UserRole.PUBLIC, UserRole.FARMER, UserRole.TRAVELLER, UserRole.RESEARCH]
+    allowed_roles = [UserRole.PUBLIC, UserRole.AUTHORITY]
     role = user_in.role
     if role not in allowed_roles:
         logger.warning(f"Registration attempted with restricted role '{role}'. Defaulting to PUBLIC.")

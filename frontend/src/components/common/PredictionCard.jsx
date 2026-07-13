@@ -4,6 +4,19 @@ import { Activity } from 'lucide-react';
 export default function PredictionCard({ prediction }) {
   if (!prediction) return null;
 
+  const classNames = ["Normal", "Moderate", "Severe"];
+  const formattedProbabilities = Array.isArray(prediction.probabilities)
+    ? prediction.probabilities.map((prob, idx) => {
+        if (prob && typeof prob === 'object') {
+          return prob;
+        }
+        return {
+          class_name: classNames[idx] || `Class ${idx}`,
+          probability: typeof prob === 'number' ? prob : 0
+        };
+      })
+    : [];
+
   return (
     <div className="bg-surface rounded-card p-6 shadow-card border border-surface-variant">
       <div className="flex items-center gap-3 mb-6">
@@ -29,7 +42,7 @@ export default function PredictionCard({ prediction }) {
       <div>
         <p className="text-sm font-semibold mb-3">Class Probabilities</p>
         <div className="space-y-3">
-          {prediction.probabilities?.map((prob, idx) => (
+          {formattedProbabilities.map((prob, idx) => (
             <div key={idx}>
               <div className="flex justify-between text-xs mb-1">
                 <span>{prob.class_name}</span>
