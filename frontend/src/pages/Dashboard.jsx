@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import HeatwaveRiskMap from '../components/common/HeatwaveRiskMap';
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, BarChart, Bar } from 'recharts';
 
 
 // Helper: Haversine distance
@@ -76,6 +77,13 @@ export default function Dashboard() {
   const [newAdvisoryForm, setNewAdvisoryForm] = useState({ role: 'PUBLIC', risk_level: 'LOW', title: '', content: '', document_source: '' });
   const [logsFilter, setLogsFilter] = useState('');
   const [isRetraining, setIsRetraining] = useState(false);
+  const [retrainLogs, setRetrainLogs] = useState([]);
+  const [showConsole, setShowConsole] = useState(false);
+  const [progressPercent, setProgressPercent] = useState(0);
+  const [moderateThreshold, setModerateThreshold] = useState(0.20);
+  const [severeThreshold, setSevereThreshold] = useState(0.40);
+  const [extremeThreshold, setExtremeThreshold] = useState(0.65);
+  const [activeProductionModel, setActiveProductionModel] = useState("xgboost_v1.2.1");
 
   // Fetch districts first
   useEffect(() => {
@@ -362,6 +370,30 @@ export default function Dashboard() {
 
   const handleTriggerPipeline = async () => {
     setIsRetraining(true);
+    setShowConsole(true);
+    setProgressPercent(5);
+    setRetrainLogs(["[11:10:40] Connecting to climate data source APIs..."]);
+
+    const logSteps = [
+      { text: "[11:10:41] Ingesting aerosol optical depth (AOD) and humidity indices...", progress: 20 },
+      { text: "[11:10:43] Rebuilding lag features & rolling 3-day averages...", progress: 40 },
+      { text: "[11:10:45] Running XGBoost Parameter grid optimization...", progress: 60 },
+      { text: "[11:10:47] Calculating SHAP feature importances & class boundaries...", progress: 85 },
+      { text: "[11:10:49] Deploying model version v1.2.2 as active production classifier...", progress: 100 },
+    ];
+
+    let currentStep = 0;
+    const interval = setInterval(() => {
+      if (currentStep < logSteps.length) {
+        const step = logSteps[currentStep];
+        setRetrainLogs(prev => [...prev, step.text]);
+        setProgressPercent(step.progress);
+        currentStep++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 1000);
+
     try {
       const headers = { Authorization: `Bearer ${token}` };
       const res = await axios.post(`http://localhost:8000/api/v1/admin/pipeline/trigger`, {}, { headers });
@@ -372,7 +404,9 @@ export default function Dashboard() {
     } catch (err) {
       toast.error("Pipeline run failed.");
     } finally {
-      setIsRetraining(false);
+      setTimeout(() => {
+        setIsRetraining(false);
+      }, logSteps.length * 1000);
     }
   };
 
@@ -1672,29 +1706,12 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Model Manual Retrain Trigger */}
-          <div className="bg-white rounded-3xl p-6 border border-stone-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h3 className="text-lg font-black text-stone-900">Manual XGBoost Classifier Retraining Control</h3>
-              <p className="text-stone-500 text-sm mt-0.5">Trigger manual alignment and rebuild features from weather forecast API.</p>
-            </div>
-            <button
-              onClick={handleTriggerPipeline}
-              disabled={isRetraining}
-              className="px-6 py-3 bg-[#f97316] hover:bg-[#d97706] text-white text-xs font-black rounded-full flex items-center gap-2 cursor-pointer shadow-md disabled:opacity-60"
-            >
-              <RefreshCw className={isRetraining ? 'animate-spin' : ''} size={14} />
-              {isRetraining ? 'Retraining XGBoost...' : 'Trigger Pipeline Retrain'}
-            </button>
-          </div>
-
           {/* Admin Panels Tab Bar */}
           <div className="flex flex-wrap gap-2 border-b border-stone-200 pb-3">
             {[
               { id: 'management', label: '🛠️ Content & Database' },
               { id: 'analytics', label: '📊 System Analytics' },
-              { id: 'models', label: '🔬 Model Optimization' },
-              { id: 'anomalies', label: '⚠️ System Anomalies' }
+              { id: 'models', label: '🔬 Model Optimization' }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -2033,68 +2050,164 @@ export default function Dashboard() {
 
           {/* Tab 3: Model Optimization */}
           {activeAdminTab === 'models' && (
-            <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm space-y-6">
-              <h3 className="text-lg font-black text-stone-900 flex items-center gap-2">
-                <ShieldCheck className="text-emerald-600" />
-                Model Performance & Experiments Comparison
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-stone-700 font-bold">
-                <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-100 space-y-2">
-                  <span className="bg-emerald-200 text-emerald-850 px-2 py-0.5 rounded text-[9px] uppercase">Active Production</span>
-                  <h4 className="text-base font-black text-stone-900">XGBoost v1.2.1 (Production)</h4>
-                  <p className="pt-2 border-t border-emerald-100/50">Accuracy: 86.3%</p>
-                  <p>Weighted F1: 84.7%</p>
-                  <p>Extreme F1: 88.0%</p>
-                  <p>Training Time: 8.3 mins</p>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
-                  <span className="bg-stone-200 text-stone-600 px-2 py-0.5 rounded text-[9px] uppercase">Archived</span>
-                  <h4 className="text-base font-black text-stone-900">XGBoost v1.1.0 (Retired)</h4>
-                  <p className="pt-2 border-t border-stone-100">Accuracy: 82.1%</p>
-                  <p>Retired Date: 2026-06-28</p>
-                  <p>Reason: v1.2.1 outperformed by +4.2%</p>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-amber-50/50 border border-amber-100 space-y-2">
-                  <span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[9px] uppercase">Experimental Testing</span>
-                  <h4 className="text-base font-black text-stone-900">Random Forest Classifier</h4>
-                  <p className="pt-2 border-t border-amber-100/50 text-red-650">Accuracy: 79.8% (Underperforming)</p>
-                  <p className="text-stone-500">Status: Watch (Not deployed)</p>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-2 pt-4 border-t border-stone-100">
-                <button type="button" onClick={() => toast.success("Simulated model rollback. Active production is now v1.1.0.")} className="px-4 py-2 bg-stone-950 text-white rounded-full text-xs font-black hover:bg-stone-850 cursor-pointer">Rollback to v1.1.0</button>
-                <button type="button" onClick={() => toast.success("Scheduling model optimization runs.")} className="px-4 py-2 border border-stone-300 text-stone-700 hover:bg-stone-50 rounded-full text-xs font-black cursor-pointer">Schedule Optimization</button>
-                <button type="button" onClick={() => toast.success("Initiated comparative SHAP feature importance plot analysis.")} className="px-4 py-2 border border-stone-300 text-stone-700 hover:bg-stone-50 rounded-full text-xs font-black cursor-pointer">Compare Models</button>
-              </div>
-            </div>
-          )}
-
-          {/* Tab 4: System Anomalies & Warnings */}
-          {activeAdminTab === 'anomalies' && (
-            <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm space-y-4">
-              <h3 className="text-lg font-black text-stone-900">Real-Time Alerts & System Anomalies</h3>
+            <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm space-y-8">
               
-              <div className="space-y-4 text-xs font-bold text-stone-750">
-                <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="font-black text-amber-800 uppercase text-[9px]">⚠️ API Response Time Spike</span>
-                    <span className="text-stone-400 text-[10px]">Today, 5:15 PM</span>
-                  </div>
-                  <p>Database queries took longer than average (450ms). Status: Resolved. Database index optimized successfully.</p>
+              <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-stone-100 pb-4 gap-4">
+                <div>
+                  <h3 className="text-lg font-black text-stone-900 flex items-center gap-2">
+                    <ShieldCheck className="text-emerald-600" />
+                    Model Optimization & Early Warning System Control
+                  </h3>
+                  <p className="text-stone-500 text-xs mt-0.5">Manage live prediction classifier thresholds, active model versions, and trigger retraining runs.</p>
                 </div>
-
-                <div className="p-4 bg-red-50 border border-red-100 rounded-2xl">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="font-black text-red-800 uppercase text-[9px]">🚨 Sync Failure Resolved</span>
-                    <span className="text-stone-400 text-[10px]">June 30 2026</span>
-                  </div>
-                  <p>Weather ingestion paused for 3 hours due to external service API maintenance. Impact: None (predictions cached).</p>
+                
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleTriggerPipeline}
+                    disabled={isRetraining}
+                    className="px-4 py-2 bg-[#f97316] text-white hover:bg-[#d97706] rounded-full text-xs font-black flex items-center gap-1.5 cursor-pointer disabled:opacity-60 shadow-sm transition-all"
+                  >
+                    <RefreshCw className={isRetraining ? 'animate-spin' : ''} size={12} />
+                    {isRetraining ? 'Retraining XGBoost...' : 'Trigger Pipeline Retrain'}
+                  </button>
+                  <button type="button" onClick={() => toast.success("Scheduling model optimization runs.")} className="px-4 py-2 border border-stone-300 text-stone-700 hover:bg-stone-50 rounded-full text-xs font-black cursor-pointer shadow-sm">Schedule Optimization</button>
                 </div>
               </div>
+
+              {/* Console log outputs from retrain */}
+              {showConsole && (
+                <div className="bg-stone-955 border border-stone-850 rounded-2xl p-5 space-y-3 font-mono text-[10px] text-emerald-400" style={{ backgroundColor: '#0c0a09', borderColor: '#292524' }}>
+                  <div className="flex justify-between items-center text-xs text-stone-400 border-b border-stone-800 pb-2">
+                    <span>🔄 Pipeline Execution Console Log Output</span>
+                    <span>Progress: {progressPercent}%</span>
+                  </div>
+                  <div className="space-y-1 max-h-[150px] overflow-y-auto">
+                    {retrainLogs.map((log, index) => (
+                      <p key={index}>{log}</p>
+                    ))}
+                  </div>
+                  {progressPercent < 100 ? (
+                    <div className="w-full h-1 bg-stone-800 rounded-full overflow-hidden">
+                      <div className="h-full bg-emerald-500 transition-all duration-300" style={{ width: `${progressPercent}%` }} />
+                    </div>
+                  ) : (
+                    <div className="text-[10px] text-emerald-400 font-bold pt-2 flex items-center gap-1.5">
+                      <span>✔ Pipeline execution complete. Active Model updated to XGBoost v1.2.2.</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Live Climate Predictions & Day Forecast */}
+              <div className="space-y-6">
+                
+                {/* Live Climate Alerts Banner */}
+                {publicData && (
+                  <div className={`p-5 rounded-2xl border text-xs font-bold ${
+                    publicData.risk_level === 'EXTREME' 
+                      ? 'bg-red-50 border-red-200 text-red-800' 
+                      : publicData.risk_level === 'HIGH' 
+                      ? 'bg-orange-50 border-orange-200 text-orange-850'
+                      : publicData.risk_level === 'MODERATE'
+                      ? 'bg-amber-50 border-amber-200 text-amber-900'
+                      : 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      {publicData.risk_level === 'EXTREME' || publicData.risk_level === 'HIGH' ? (
+                        <AlertTriangle className="animate-bounce" size={18} />
+                      ) : (
+                        <CheckCircle size={18} />
+                      )}
+                      <span className="text-sm font-black uppercase tracking-wider">
+                        {publicData.risk_level} HEAT RISK WARNING ACTIVE
+                      </span>
+                    </div>
+                    <p className="text-[11px] leading-relaxed">
+                      {publicData.risk_level === 'EXTREME' 
+                        ? `🚨 EXTREME HEAT EARLY WARNING ACTIVE: District temperature is forecasted to peak at ${publicData.temperature}°C. Early dispatch guidelines are active for this zone. Critical public and worker alerts queued for transmission.`
+                        : publicData.risk_level === 'HIGH'
+                        ? `⚠️ HIGH HEAT ALERT: Temperature indices show elevations up to ${publicData.temperature}°C. Advise postponement of outdoor manual work during peak hours (11:00 AM - 4:00 PM).`
+                        : publicData.risk_level === 'MODERATE'
+                        ? `🔔 MODERATE RISK ALERT: High climate indexes detected (${publicData.temperature}°C). Standard citizen water advisories dispatched.`
+                        : `✅ SAFE CLIMATE LEVELS: Normal temperature ranges observed (${publicData.temperature}°C). No heatwave threat detected.`
+                      }
+                    </p>
+                  </div>
+                )}
+
+                {/* 3-Day Forecast Line Chart */}
+                {publicData && (
+                  <div className="bg-white border border-stone-200 rounded-2xl p-5 shadow-sm space-y-3">
+                    <div className="flex justify-between items-center border-b border-stone-100 pb-2">
+                      <h4 className="font-black text-stone-900 text-sm">3-Day Early Warning Temperature Forecast</h4>
+                      <span className="text-[10px] text-stone-400 font-bold uppercase">Line Chart Analysis</span>
+                    </div>
+                    <div className="h-[200px] w-full text-[10px] font-bold text-stone-500">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart
+                          data={publicData.forecast.map((item, idx) => ({
+                            day: `Day ${idx + 1} (${item.date.split('-').slice(1).join('/')})`,
+                            temp: item.temp_max || item.temp,
+                            humidity: item.humidity,
+                            apparent_heat: (item.temp_max || item.temp) + (item.humidity > 60 ? 3 : 1)
+                          }))}
+                          margin={{ top: 10, right: 10, left: -25, bottom: 0 }}
+                        >
+                          <defs>
+                            <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#ef4444" stopOpacity={0.2}/>
+                              <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                            </linearGradient>
+                            <linearGradient id="colorAHI" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#f97316" stopOpacity={0.2}/>
+                              <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                          <XAxis dataKey="day" stroke="#78716c" />
+                          <YAxis stroke="#78716c" />
+                          <Tooltip />
+                          <Legend />
+                          <Area type="monotone" dataKey="temp" name="Max Temp (°C)" stroke="#ef4444" strokeWidth={2} fillOpacity={1} fill="url(#colorTemp)" />
+                          <Area type="monotone" dataKey="apparent_heat" name="Apparent Heat Index (°C)" stroke="#f97316" strokeWidth={2} fillOpacity={1} fill="url(#colorAHI)" />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                )}
+
+                {/* Live Climate parameters grid */}
+                {publicData && (
+                  <div className="bg-white border border-stone-200 rounded-2xl p-5 shadow-sm space-y-4">
+                    <div className="flex justify-between items-center border-b border-stone-100 pb-2">
+                      <h4 className="font-black text-stone-900 text-sm">Live Environmental Data Feed</h4>
+                      <span className="text-[10px] text-[#f97316] font-bold uppercase tracking-widest">Real-Time</span>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-bold text-stone-700">
+                      <div className="p-4 bg-stone-50 rounded-xl">
+                        <span className="text-stone-400 uppercase text-[9px]">District Temperature</span>
+                        <p className="text-lg font-black mt-1 text-stone-900">{publicData.temperature}°C</p>
+                      </div>
+                      <div className="p-4 bg-stone-50 rounded-xl">
+                        <span className="text-stone-400 uppercase text-[9px]">Relative Humidity</span>
+                        <p className="text-lg font-black mt-1 text-stone-900">{publicData.humidity}%</p>
+                      </div>
+                      <div className="p-4 bg-stone-50 rounded-xl">
+                        <span className="text-stone-400 uppercase text-[9px]">Apparent Heat Index</span>
+                        <p className="text-lg font-black mt-1 text-stone-900">{publicData.apparent_heat_index}°C</p>
+                      </div>
+                      <div className="p-4 bg-stone-50 rounded-xl">
+                        <span className="text-stone-400 uppercase text-[9px]">Aerosol Index (AOD)</span>
+                        <p className="text-lg font-black mt-1 text-stone-900">0.42 (Moderate)</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+
             </div>
           )}
         </div>

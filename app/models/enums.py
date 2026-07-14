@@ -22,6 +22,9 @@ class AdvisoryRole(str, enum.Enum):
 class AlertStatus(str, enum.Enum):
     ACTIVE = "ACTIVE"
     RESOLVED = "RESOLVED"
+    DRAFT = "DRAFT"
+    SENT = "SENT"
+    CANCELLED = "CANCELLED"
 
 class DatasetStatus(str, enum.Enum):
     PENDING = "PENDING"

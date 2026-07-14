@@ -16,7 +16,13 @@ async def verify_db():
     print_header("DATABASE CONFIGURATION VERIFICATION")
     try:
         # Create async engine
-        engine = create_async_engine(settings.DATABASE_URL)
+        engine = create_async_engine(
+            settings.DATABASE_URL,
+            connect_args={
+                "statement_cache_size": 0,
+                "prepared_statement_cache_size": 0,
+            }
+        )
         async with engine.connect() as conn:
             # 1. Check pgvector extension
             res_vector = await conn.execute(text("SELECT extname FROM pg_extension WHERE extname = 'vector'"))

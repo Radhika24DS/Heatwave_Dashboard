@@ -1,6 +1,6 @@
 import logging
 from datetime import date, timedelta
-from typing import Dict, List
+from typing import Dict, List, Tuple
 import pandas as pd
 import numpy as np
 from sqlalchemy import select
@@ -28,7 +28,7 @@ class FeatureBuilderService:
         forecast_date: date, 
         live_forecast: Dict[str, float],
         feature_names: List[str]
-    ) -> np.ndarray:
+    ) -> Tuple[pd.DataFrame, float]:
         """
         Builds the 1D feature vector for a given district and target date by:
         1. Fetching the preceding 7 days of weather data from the database.
@@ -140,5 +140,5 @@ class FeatureBuilderService:
         logger.info(f"Feature engineering completed. Computed heat_index: {target_df['heat_index'].values[0]:.2f}°C, tempmax_lag_1d: {target_df['tempmax_lag_1d'].values[0]:.2f}°C")
         
         # 7. Select feature columns expected by Model A
-        X_infer = target_df[feature_names].values
+        X_infer = target_df[feature_names]
         return X_infer, float(target_df["heat_index"].values[0])
