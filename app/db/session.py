@@ -7,6 +7,8 @@ engine = create_async_engine(
     settings.DATABASE_URL,
     echo=False,
     pool_pre_ping=True,
+    pool_recycle=1800,
+    pool_timeout=15,
     connect_args={
         "statement_cache_size": 0,
         "prepared_statement_cache_size": 0,

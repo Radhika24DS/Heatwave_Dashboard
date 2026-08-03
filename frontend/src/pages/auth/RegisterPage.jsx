@@ -44,14 +44,19 @@ export default function RegisterPage() {
       try {
         const cached = localStorage.getItem('samvit_districts_cache');
         if (cached) {
-          setDistricts(JSON.parse(cached));
-          return;
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setDistricts(parsed);
+            return;
+          }
         }
 
         const res = await districtService.getAll();
         if (res.status === 'success' && Array.isArray(res.data)) {
           setDistricts(res.data);
-          localStorage.setItem('samvit_districts_cache', JSON.stringify(res.data));
+          if (res.data.length > 0) {
+            localStorage.setItem('samvit_districts_cache', JSON.stringify(res.data));
+          }
         }
       } catch (err) {
         console.error("Failed to load districts:", err);
