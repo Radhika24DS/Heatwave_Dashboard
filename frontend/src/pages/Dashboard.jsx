@@ -5,6 +5,7 @@ import { predictionService } from '../services/prediction.service';
 import { advisoryService } from '../services/advisory.service';
 import { alertService } from '../services/alert.service';
 import axios from 'axios';
+import axiosClient from '../services/axiosClient';
 import { 
   ShieldAlert, UserCheck, Trash2, Edit3, Plus, 
   MapPin, CheckCircle, XCircle, ArrowRight, Shield,
@@ -110,12 +111,12 @@ export default function Dashboard() {
       setLoading(true);
       try {
         // Fetch Public Risk assessment API
-        const res = await axios.get(`http://localhost:8000/api/v1/public/risk?district=${selectedDistrict}`);
+        const res = await axiosClient.get(`/public/risk?district=${selectedDistrict}`);
         if (res.data?.status === 'success') {
           setPublicData(res.data.data);
           
           // Also fetch matching public advisories
-          const advRes = await axios.get(`http://localhost:8000/api/v1/public/advisories?risk_level=${res.data.data.risk_level}`);
+          const advRes = await axiosClient.get(`/public/advisories?risk_level=${res.data.data.risk_level}`);
           if (advRes.data?.status === 'success') {
             setAdvisories(advRes.data.data);
           }
@@ -136,7 +137,7 @@ export default function Dashboard() {
       setFarmerCropLoading(true);
       try {
         const { temperature, humidity, wind } = publicData;
-        const res = await axios.get(`http://localhost:8000/api/v1/farmer/advisories?crop_type=${selectedCrop}&temp=${temperature}&humidity=${humidity}&wind=${wind}`);
+        const res = await axiosClient.get(`/farmer/advisories?crop_type=${selectedCrop}&temp=${temperature}&humidity=${humidity}&wind=${wind}`);
         if (res.data?.status === 'success') {
           setFarmerCropData(res.data.data);
         }
@@ -161,7 +162,7 @@ export default function Dashboard() {
       const fromD = districts.find(d => d.id === parseInt(fromDistrictId));
       const toD = districts.find(d => d.id === parseInt(toDistrictId));
       
-      const res = await axios.get(`http://localhost:8000/api/v1/traveler/route-insights?from=${fromD.latitude},${fromD.longitude}&to=${toD.latitude},${toD.longitude}`);
+      const res = await axiosClient.get(`/traveler/route-insights?from=${fromD.latitude},${fromD.longitude}&to=${toD.latitude},${toD.longitude}`);
       if (res.data?.status === 'success') {
         setRouteInsights(res.data.data);
       }
@@ -178,7 +179,7 @@ export default function Dashboard() {
     const loadResearchData = async () => {
       try {
         const headers = { Authorization: `Bearer ${token}` };
-        const rankingRes = await axios.get(`http://localhost:8000/api/v1/authority/risk-ranking`, { headers });
+        const rankingRes = await axiosClient.get(`/authority/risk-ranking`, { headers });
         setHistoricalData(rankingRes.data?.data || []);
       } catch (err) {
         console.error(err);
@@ -190,7 +191,7 @@ export default function Dashboard() {
   const loadAuthorityData = async () => {
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const rankingRes = await axios.get(`http://localhost:8000/api/v1/authority/risk-ranking`, { headers });
+      const rankingRes = await axiosClient.get(`/authority/risk-ranking`, { headers });
       const rankingData = rankingRes.data?.data || [];
       setRankings(rankingData);
       
@@ -199,7 +200,7 @@ export default function Dashboard() {
         setDraftRisk(rankingData[0].risk_level);
       }
 
-      const alertsRes = await axios.get(`http://localhost:8000/api/v1/authority/alerts`, { headers });
+      const alertsRes = await axiosClient.get(`/authority/alerts`, { headers });
       setAuthorityAlerts(alertsRes.data?.data || []);
     } catch (err) {
       console.error(err);
@@ -215,7 +216,7 @@ export default function Dashboard() {
   const handleApproveAlert = async (alertId) => {
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const res = await axios.patch(`http://localhost:8000/api/v1/authority/alerts/${alertId}`, { status: 'SENT' }, { headers });
+      const res = await axiosClient.patch(`/authority/alerts/${alertId}`, { status: 'SENT' }, { headers });
       if (res.data?.status === 'success') {
         toast.success("Alert approved and dispatched successfully!");
         loadAuthorityData();
@@ -228,7 +229,7 @@ export default function Dashboard() {
   const handleDiscardAlert = async (alertId) => {
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const res = await axios.patch(`http://localhost:8000/api/v1/authority/alerts/${alertId}`, { status: 'CANCELLED' }, { headers });
+      const res = await axiosClient.patch(`/authority/alerts/${alertId}`, { status: 'CANCELLED' }, { headers });
       if (res.data?.status === 'success') {
         toast.success("Alert discarded.");
         loadAuthorityData();
@@ -247,7 +248,7 @@ export default function Dashboard() {
     e.preventDefault();
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const res = await axios.patch(`http://localhost:8000/api/v1/authority/alerts/${editAlertId}`, { message: editAlertMessage }, { headers });
+      const res = await axiosClient.patch(`/authority/alerts/${editAlertId}`, { message: editAlertMessage }, { headers });
       if (res.data?.status === 'success') {
         toast.success("Alert message saved.");
         setEditAlertId(null);
@@ -266,7 +267,7 @@ export default function Dashboard() {
     
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const res = await axios.post(`http://localhost:8000/api/v1/authority/alerts`, {
+      const res = await axiosClient.post(`/authority/alerts`, {
         district_id: dId,
         risk_level: risk,
         message: msg,
@@ -289,16 +290,16 @@ export default function Dashboard() {
   const loadAdminData = async () => {
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const uRes = await axios.get(`http://localhost:8000/api/v1/admin/users`, { headers });
+      const uRes = await axiosClient.get(`/admin/users`, { headers });
       setAdminUsers(uRes.data?.data || []);
 
-      const aRes = await axios.get(`http://localhost:8000/api/v1/admin/advisories`, { headers });
+      const aRes = await axiosClient.get(`/admin/advisories`, { headers });
       setAdminAdvisories(aRes.data?.data || []);
 
-      const sRes = await axios.get(`http://localhost:8000/api/v1/admin/stats`, { headers });
+      const sRes = await axiosClient.get(`/admin/stats`, { headers });
       setAdminStats(sRes.data?.data || null);
 
-      const lRes = await axios.get(`http://localhost:8000/api/v1/admin/logs`, { headers });
+      const lRes = await axiosClient.get(`/admin/logs`, { headers });
       setAdminLogs(lRes.data?.data || []);
     } catch (err) {
       console.error(err);
@@ -318,7 +319,7 @@ export default function Dashboard() {
         ...newUserForm,
         district_id: newUserForm.district_id ? parseInt(newUserForm.district_id) : null
       };
-      const res = await axios.post(`http://localhost:8000/api/v1/admin/users`, payload, { headers });
+      const res = await axiosClient.post(`/admin/users`, payload, { headers });
       if (res.data?.status === 'success') {
         toast.success("User account created successfully!");
         setNewUserForm({ name: '', email: '', password: '', role: 'PUBLIC', district_id: '' });
@@ -333,7 +334,7 @@ export default function Dashboard() {
     if (!confirm("Are you sure you want to delete this user?")) return;
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      await axios.delete(`http://localhost:8000/api/v1/admin/users/${userId}`, { headers });
+      await axiosClient.delete(`/admin/users/${userId}`, { headers });
       toast.success("User deleted.");
       loadAdminData();
     } catch (err) {
@@ -345,7 +346,7 @@ export default function Dashboard() {
     e.preventDefault();
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const res = await axios.post(`http://localhost:8000/api/v1/admin/advisories`, newAdvisoryForm, { headers });
+      const res = await axiosClient.post(`/admin/advisories`, newAdvisoryForm, { headers });
       if (res.data?.status === 'success') {
         toast.success("Advisory guidelines added!");
         setNewAdvisoryForm({ role: 'PUBLIC', risk_level: 'LOW', title: '', content: '', document_source: '' });
@@ -360,7 +361,7 @@ export default function Dashboard() {
     if (!confirm("Delete this advisory?")) return;
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      await axios.delete(`http://localhost:8000/api/v1/admin/advisories/${id}`, { headers });
+      await axiosClient.delete(`/admin/advisories/${id}`, { headers });
       toast.success("Advisory removed.");
       loadAdminData();
     } catch (err) {
@@ -396,7 +397,7 @@ export default function Dashboard() {
 
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const res = await axios.post(`http://localhost:8000/api/v1/admin/pipeline/trigger`, {}, { headers });
+      const res = await axiosClient.post(`/admin/pipeline/trigger`, {}, { headers });
       if (res.data?.status === 'success') {
         toast.success("ML pipeline completed! XGBoost models retrained successfully.");
         loadAdminData();
@@ -1486,7 +1487,7 @@ export default function Dashboard() {
                 
                 {/* Download PDF/CSV report */}
                 <a
-                  href="http://localhost:8000/api/v1/authority/reports"
+                  href={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1'}/authority/reports`}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-1.5 px-4 py-2 bg-stone-900 text-white rounded-full text-xs font-black hover:bg-stone-850 cursor-pointer"
