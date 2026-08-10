@@ -46,16 +46,17 @@ export default function RegisterPage() {
         if (cached) {
           const parsed = JSON.parse(cached);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            setDistricts(parsed);
+            setDistricts(parsed.filter(d => d.name && d.name.toLowerCase() !== 'string'));
             return;
           }
         }
 
         const res = await districtService.getAll();
         if (res.status === 'success' && Array.isArray(res.data)) {
-          setDistricts(res.data);
-          if (res.data.length > 0) {
-            localStorage.setItem('samvit_districts_cache', JSON.stringify(res.data));
+          const filtered = res.data.filter(d => d.name && d.name.toLowerCase() !== 'string');
+          setDistricts(filtered);
+          if (filtered.length > 0) {
+            localStorage.setItem('samvit_districts_cache', JSON.stringify(filtered));
           }
         }
       } catch (err) {

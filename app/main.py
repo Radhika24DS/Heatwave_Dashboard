@@ -53,6 +53,7 @@ if settings.ALLOWED_ORIGINS:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+        expose_headers=["Content-Disposition"],
     )
 
 # Mount health check endpoint at both root level (/) and v1 (for load balancers)

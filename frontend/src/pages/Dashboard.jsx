@@ -34,6 +34,7 @@ export default function Dashboard() {
   const [districts, setDistricts] = useState([]);
   const [selectedDistrict, setSelectedDistrict] = useState(user?.district_id || 1);
   const [publicData, setPublicData] = useState(null);
+  const [activeAlerts, setActiveAlerts] = useState([]);
   const [advisories, setAdvisories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
@@ -92,9 +93,10 @@ export default function Dashboard() {
       try {
         const res = await districtService.getAll();
         if (res.status === 'success' && Array.isArray(res.data)) {
-          setDistricts(res.data);
-          if (!user?.district_id && res.data.length > 0) {
-            setSelectedDistrict(res.data[0].id);
+          const filtered = res.data.filter(d => d.name && d.name.toLowerCase() !== 'string');
+          setDistricts(filtered);
+          if (!user?.district_id && filtered.length > 0) {
+            setSelectedDistrict(filtered[0].id);
           }
         }
       } catch (err) {
@@ -128,6 +130,23 @@ export default function Dashboard() {
       }
     };
     fetchPublicData();
+  }, [selectedDistrict]);
+
+  // Load active/sent alerts for selected district
+  useEffect(() => {
+    if (!selectedDistrict) return;
+    const fetchActiveAlerts = async () => {
+      try {
+        const res = await alertService.getAlerts({ districtId: selectedDistrict });
+        if (res.status === 'success' && Array.isArray(res.data)) {
+          const activeOrSent = res.data.filter(a => a.status === 'ACTIVE' || a.status === 'SENT');
+          setActiveAlerts(activeOrSent);
+        }
+      } catch (err) {
+        console.error("Failed to load active alerts", err);
+      }
+    };
+    fetchActiveAlerts();
   }, [selectedDistrict]);
 
   // ── FARMER: Crop advice fetcher ──
@@ -236,6 +255,38 @@ export default function Dashboard() {
       }
     } catch (err) {
       toast.error("Failed to discard alert.");
+    }
+  };
+
+  const handleDownloadReport = async () => {
+    try {
+      const response = await axiosClient.get('/authority/reports', {
+        responseType: 'blob',
+      });
+      const blob = new Blob([response.data], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = `SAMVIT_Authority_Report_${new Date().toISOString().split('T')[0]}.csv`;
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="(.+?)"/);
+        if (match && match[1]) {
+          filename = match[1];
+        }
+      }
+      
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      toast.success("Exported model statistics report (CSV/PDF) successfully.");
+    } catch (error) {
+      console.error("Failed to download report:", error);
+      toast.error("Failed to download report. Please check authorization.");
     }
   };
 
@@ -450,7 +501,7 @@ export default function Dashboard() {
             <span className="text-sm font-black text-stone-600 uppercase tracking-widest">Select District:</span>
             <select
               value={selectedDistrict}
-              onChange={e => setSelectedDistrict(e.target.value)}
+              onChange={e => setSelectedDistrict(Number(e.target.value))}
               className="bg-white border border-stone-300 rounded-xl px-4 py-2 text-sm font-bold text-stone-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#f97316]/20 cursor-pointer"
             >
               {districts.map(d => (
@@ -490,6 +541,21 @@ export default function Dashboard() {
       {user?.role === 'PUBLIC' && activePreference === 'CITIZEN' && publicData && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
+          {/* Active Emergency Alert Banner */}
+          {Number(selectedDistrict) === Number(user?.district_id) && activeAlerts && activeAlerts.length > 0 && (
+            <div className="lg:col-span-3 bg-red-50 border-2 border-red-500 rounded-3xl p-6 flex items-start gap-4 shadow-sm animate-pulse">
+              <span className="text-2xl">🚨</span>
+              <div className="flex-1">
+                <h4 className="text-red-800 font-black text-sm uppercase tracking-wider">Active Emergency Alert for {publicData.district_name}</h4>
+                {activeAlerts.map(alert => (
+                  <p key={alert.id} className="text-red-700 text-xs font-black mt-1 leading-relaxed">
+                    "{alert.message}"
+                  </p>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Left Column: Risk Status & 3-Day Forecast */}
           <div className="lg:col-span-2 space-y-8">
             {/* Risk Status Card */}
@@ -602,19 +668,14 @@ export default function Dashboard() {
                   mode="public"
                 />
               </div>
-              <div className="space-y-2.5 max-h-[180px] overflow-y-auto pr-2">
-                {publicData.map_data.map(d => (
-                  <button 
-                    key={d.district_id} 
-                    onClick={() => setSelectedDistrict(d.district_id)}
-                    className={`w-full flex justify-between items-center py-2 px-3 rounded-xl border text-left cursor-pointer transition-colors ${d.district_id === selectedDistrict ? 'bg-orange-50 border-orange-200' : 'bg-transparent border-transparent hover:bg-stone-50'}`}
-                  >
-                    <span className="font-bold text-sm text-stone-800">📍 {d.district_name}</span>
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${getRiskStyles(d.risk_level)}`}>
-                      {d.risk_level}
-                    </span>
-                  </button>
-                ))}
+              <div className="border border-stone-200 rounded-2xl p-4 bg-orange-50/20 flex justify-between items-center">
+                <div>
+                  <span className="font-black text-sm text-stone-900">📍 {publicData.district_name} (Selected Place)</span>
+                  <p className="text-[11px] text-stone-500 font-bold mt-1">Current Risk Score: {publicData.risk_score}</p>
+                </div>
+                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${getRiskStyles(publicData.risk_level)}`}>
+                  {publicData.risk_level}
+                </span>
               </div>
             </div>
           </div>
@@ -989,8 +1050,8 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* 3 Columns details: Hydration/Warnings, Safety Checklist, Emergency lookup */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* 2 Columns details: Hydration/Warnings, Safety Suggestions */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
                 {/* Hydration / Warnings */}
                 <div className="p-6 rounded-3xl bg-orange-50 border border-orange-100 flex flex-col justify-between space-y-4">
@@ -1010,13 +1071,13 @@ export default function Dashboard() {
                   <p className="text-[10px] text-stone-400 font-black">Verify warnings match local weather changes.</p>
                 </div>
 
-                {/* Safety Checklist */}
+                {/* Safety Suggestions & Advice Before Travel */}
                 <div className="bg-white p-6 rounded-3xl border border-stone-200">
                   <h4 className="font-black text-stone-950 flex items-center gap-2 mb-4">
                     <ShieldCheck className="text-emerald-600" />
-                    Safety Checklist Before Travel
+                    Safety Suggestions & Advice Before Travel
                   </h4>
-                  <div className="space-y-2 text-xs font-bold text-stone-700">
+                  <ul className="space-y-3 text-xs font-bold text-stone-700">
                     {[
                       "Air Conditioning functioning properly (Critical)",
                       "Radiator coolant level checked",
@@ -1026,75 +1087,31 @@ export default function Dashboard() {
                       "Phone charged & portable power bank handy",
                       "Offline roadmap downloaded (no data dependency)"
                     ].map((item, i) => (
-                      <label key={i} className="flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-stone-50 cursor-pointer">
-                        <input type="checkbox" className="accent-[#f97316] h-4 w-4 cursor-pointer" defaultChecked={i < 3} />
+                      <li key={i} className="flex items-start gap-2.5 p-1.5 border-b border-stone-50 last:border-0">
+                        <span className="text-[#f97316]">•</span>
                         <span>{item}</span>
-                      </label>
+                      </li>
                     ))}
-                  </div>
-                </div>
-
-                {/* Emergency Contact List */}
-                <div className="bg-white p-6 rounded-3xl border border-stone-200 flex flex-col justify-between">
-                  <div>
-                    <h4 className="font-black text-stone-950 flex items-center gap-2 mb-4">
-                      <ShieldAlert className="text-red-500" />
-                      Emergency Contacts & Hospitals
-                    </h4>
-                    <div className="space-y-3 text-xs text-stone-700 font-bold max-h-[220px] overflow-y-auto pr-1">
-                      {routeInsights.route_segments.map((seg, i) => (
-                        <div key={i} className="pb-2 border-b border-stone-100 last:border-0 space-y-1">
-                          <p className="font-black text-stone-900">📍 {seg.district_name} District</p>
-                          <p className="text-[10px] text-stone-500">
-                            🏥 Government Hospital: +91-{800 + i * 23}-{123 + i * 45} <br />
-                            🚨 Emergency Services: 108 | Police: 112
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="text-[10px] text-stone-400 font-bold border-t border-stone-100 pt-3">
-                    Disaster Management Support hotline: 1078
-                  </div>
+                  </ul>
                 </div>
 
               </div>
 
-              {/* Current Location details & Historical comparisons */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                
-                {/* Current Location */}
-                <div className="p-6 rounded-3xl bg-white border border-stone-200 space-y-4">
-                  <h4 className="font-black text-stone-850 flex items-center gap-2">
-                    <MapPin className="text-[#f97316]" />
-                    Current Location Details
-                  </h4>
-                  <div className="grid grid-cols-2 gap-4 text-xs font-bold text-stone-700">
-                    <p>Current Segment: <span className="text-[#f97316] font-black">{routeInsights.route_segments[0]?.district_name}</span></p>
-                    <p>Feels Like Temp: <span className="text-stone-900 font-black">{routeInsights.route_segments[0]?.temp + 3}°C</span></p>
-                    <p>UV Index Rating: <span className="text-red-500 font-black">8 (Extreme)</span></p>
-                    <p>Aerosol AOD: <span className="text-stone-900 font-black">0.45 (Moderate)</span></p>
-                  </div>
-                  <div className="flex gap-2 pt-2 border-t border-stone-100">
-                    <button type="button" onClick={() => toast.success("Refreshed location readings.")} className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg text-[10px] font-black uppercase">Refresh</button>
-                    <button type="button" onClick={() => toast.success("Journey plan saved for offline use.")} className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg text-[10px] font-black uppercase">Save Journey</button>
-                  </div>
+              {/* Current Location details */}
+              <div className="p-6 rounded-3xl bg-white border border-stone-200 space-y-4">
+                <h4 className="font-black text-stone-850 flex items-center gap-2">
+                  <MapPin className="text-[#f97316]" />
+                  Current Location Details
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-bold text-stone-700">
+                  <p>Current Segment: <span className="text-[#f97316] font-black">{routeInsights.route_segments[0]?.district_name}</span></p>
+                  <p>Feels Like Temp: <span className="text-stone-900 font-black">{routeInsights.route_segments[0]?.temp + 3}°C</span></p>
+                  <p>UV Index Rating: <span className="text-red-500 font-black">8 (Extreme)</span></p>
+                  <p>Aerosol AOD: <span className="text-stone-900 font-black">0.45 (Moderate)</span></p>
                 </div>
-
-                {/* Historical Route Trends */}
-                <div className="p-6 rounded-3xl bg-white border border-stone-200 space-y-4">
-                  <h4 className="font-black text-stone-850 flex items-center gap-2">
-                    <Activity className="text-blue-500" />
-                    Historical Journey Trend Analysis
-                  </h4>
-                  <p className="text-xs text-stone-600 leading-relaxed">
-                    You have taken this route 5 times this month. 
-                    Your average safety score for this path is <span className="font-black text-stone-900">72%</span>. This trip scores <span className="text-emerald-600 font-black">78%</span> (better safety index). 
-                    Safest travel times are usually between <span className="text-[#f97316] font-black">5-8 AM</span>.
-                  </p>
-                  <button type="button" onClick={() => toast.success("Opening route logs.")} className="text-xs text-[#f97316] font-black hover:underline">View Past Journeys ➔</button>
+                <div className="flex gap-2 pt-2 border-t border-stone-100">
+                  <button type="button" onClick={() => toast.success("Refreshed location readings.")} className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg text-[10px] font-black uppercase">Refresh</button>
                 </div>
-
               </div>
 
             </div>
@@ -1114,7 +1131,7 @@ export default function Dashboard() {
             </div>
             <button 
               type="button" 
-              onClick={() => toast.success("Exported model statistics report (CSV/PDF) successfully.")}
+              onClick={handleDownloadReport}
               className="flex items-center gap-1.5 px-4 py-2 bg-stone-900 text-white rounded-full text-xs font-black hover:bg-stone-850 cursor-pointer"
             >
               <Download size={12} /> Export Research Report
@@ -1486,14 +1503,13 @@ export default function Dashboard() {
                 </h3>
                 
                 {/* Download PDF/CSV report */}
-                <a
-                  href={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1'}/authority/reports`}
-                  target="_blank"
-                  rel="noreferrer"
+                <button
+                  type="button"
+                  onClick={handleDownloadReport}
                   className="flex items-center gap-1.5 px-4 py-2 bg-stone-900 text-white rounded-full text-xs font-black hover:bg-stone-850 cursor-pointer"
                 >
                   <Download size={14} /> Download Report
-                </a>
+                </button>
               </div>
 
               <div className="overflow-x-auto max-h-[250px] overflow-y-auto">
@@ -1533,6 +1549,10 @@ export default function Dashboard() {
               </div>
             </div>
 
+          </div>
+
+          {/* Right Column: Create Alerts, Draft Alerts control & History log */}
+          <div className="space-y-8">
             {/* Create Draft Alert form */}
             <div className="bg-white rounded-3xl p-6 border border-stone-200">
               <h3 className="text-lg font-black text-stone-900 mb-5 flex items-center gap-2">
@@ -1549,7 +1569,7 @@ export default function Dashboard() {
                       required 
                       value={draftDistrictId}
                       onChange={e => setDraftDistrictId(parseInt(e.target.value))}
-                      className="w-full bg-white border border-stone-300 rounded-xl px-4 py-2 text-sm font-bold text-stone-800 focus:outline-none"
+                      className="w-full bg-white border border-stone-300 rounded-xl px-4 py-2 text-sm font-bold text-[#1c1917] focus:outline-none"
                     >
                       {districts.map(d => (
                         <option key={d.id} value={d.id}>{d.name}</option>
@@ -1563,7 +1583,7 @@ export default function Dashboard() {
                       required 
                       value={draftRisk}
                       onChange={e => setDraftRisk(e.target.value)}
-                      className="w-full bg-white border border-stone-300 rounded-xl px-4 py-2 text-sm font-bold text-stone-800 focus:outline-none"
+                      className="w-full bg-white border border-stone-300 rounded-xl px-4 py-2 text-sm font-bold text-[#1c1917] focus:outline-none"
                     >
                       <option value="LOW">Low</option>
                       <option value="MODERATE">Moderate</option>
@@ -1583,15 +1603,12 @@ export default function Dashboard() {
                   />
                 </div>
 
-                <button type="submit" className="px-5 py-2.5 bg-[#f97316] hover:bg-[#d97706] text-white text-xs font-black rounded-full cursor-pointer">
+                <button type="submit" className="w-full py-2.5 bg-[#f97316] hover:bg-[#d97706] text-white text-xs font-black rounded-xl cursor-pointer">
                   Save Alert Draft
                 </button>
               </form>
             </div>
-          </div>
 
-          {/* Right Column: Draft Alerts control & History log */}
-          <div className="space-y-8">
             {/* Draft Alerts Panel */}
             <div className="bg-white rounded-3xl p-6 border border-stone-200">
               <h3 className="text-lg font-black text-stone-900 mb-4 flex items-center gap-2">

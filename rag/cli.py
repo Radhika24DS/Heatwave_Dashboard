@@ -29,6 +29,10 @@ def query_advisory(role: str, risk: str, query: str | None):
 
 
 def main(argv: list[str] | None = None):
+    # Support printing Unicode characters on Windows console
+    import sys
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description="RAG advisory retrieval CLI")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
