@@ -1,7 +1,8 @@
-from sqlalchemy import BigInteger, String, Boolean, DateTime, Enum, func
+from sqlalchemy import BigInteger, String, Boolean, DateTime, Enum, func, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 from app.db.base_class import Base
 from app.models.enums import UserRole
+from typing import Optional
 
 class User(Base):
     __tablename__ = "users"
@@ -12,6 +13,10 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[UserRole] = mapped_column(Enum(UserRole), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    
+    district_id: Mapped[Optional[int]] = mapped_column(
+        BigInteger, ForeignKey("districts.id", ondelete="SET NULL"), nullable=True
+    )
     
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

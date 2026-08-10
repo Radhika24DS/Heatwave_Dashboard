@@ -8,6 +8,7 @@ class UserBase(BaseModel):
     email: EmailStr = Field(..., description="User's login/notification email")
     role: UserRole = Field(..., description="System access role")
     is_active: bool = Field(True, description="Whether the user account is active")
+    district_id: Optional[int] = Field(None, description="User's home district ID")
 
 class UserCreate(UserBase):
     password: str = Field(..., min_length=8, max_length=100, description="Plain text password")

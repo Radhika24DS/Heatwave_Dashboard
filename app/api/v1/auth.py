@@ -27,6 +27,7 @@ def create_access_token(user: User) -> str:
         "name": user.name,
         "email": user.email,
         "role": user.role.value,
+        "district_id": user.district_id,
         "exp": expire
     }
     encoded_jwt = jwt.encode(
@@ -67,7 +68,8 @@ async def register(
         email=user_in.email,
         hashed_password=hashed_pwd,
         role=role,
-        is_active=user_in.is_active
+        is_active=user_in.is_active,
+        district_id=user_in.district_id
     )
     
     db.add(new_user)
@@ -130,6 +132,7 @@ async def login(
                 "email": user.email,
                 "role": user.role.value,
                 "is_active": user.is_active,
+                "district_id": user.district_id,
                 "created_at": user.created_at.isoformat() if user.created_at else None,
                 "updated_at": user.updated_at.isoformat() if user.updated_at else None
             }

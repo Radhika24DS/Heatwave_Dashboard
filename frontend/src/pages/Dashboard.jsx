@@ -940,7 +940,7 @@ export default function Dashboard() {
               Travel Route Safety Planner
             </h3>
             
-            <form onSubmit={handleTravelSearch} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <form onSubmit={handleTravelSearch} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
               <div>
                 <label className="block text-[10px] font-black uppercase text-stone-500 mb-2">Depart From:</label>
                 <select
@@ -976,14 +976,6 @@ export default function Dashboard() {
               >
                 {travelLoading ? <RefreshCw className="animate-spin" size={14} /> : <ArrowRight size={14} />}
                 Generate Route Safety Plan
-              </button>
-
-              <button
-                type="button"
-                onClick={() => toast.success("Route optimized! Selected paths avoid high heat-stressed segments where possible.")}
-                className="w-full py-2.5 bg-stone-900 hover:bg-stone-800 text-white text-xs font-black rounded-xl flex items-center justify-center gap-2 shadow-sm cursor-pointer transition-colors"
-              >
-                Optimize for Heat Risk
               </button>
             </form>
 
