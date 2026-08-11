@@ -26,8 +26,8 @@ export default function DashboardLayout() {
     { name: 'Dashboard', path: '/app/dashboard', icon: LayoutDashboard },
   ];
 
-  // History is research/analytics (accessible for Authority and Admin)
-  if (user?.role === 'AUTHORITY' || user?.role === 'ADMIN') {
+  // History is research/analytics (accessible for Admin)
+  if (user?.role === 'ADMIN') {
     navItems.push({ name: 'History Logs', path: '/app/history', icon: History });
   }
 
