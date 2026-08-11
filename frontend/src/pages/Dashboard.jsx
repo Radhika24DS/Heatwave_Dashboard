@@ -1299,69 +1299,7 @@ export default function Dashboard() {
 
           </div>
 
-          {/* Ablation Analysis and Historical averages */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            {/* Ablation Card */}
-            <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm flex flex-col justify-between">
-              <div>
-                <h3 className="text-base font-black text-stone-900 mb-2">Feature Ablation Impact Study</h3>
-                <p className="text-xs text-stone-500 leading-relaxed mb-4">
-                  Evaluating classification score drops when singular feature sets are excluded:
-                </p>
-                <div className="space-y-2 text-xs font-bold text-stone-700">
-                  <div className="flex justify-between pb-1.5 border-b border-stone-100">
-                    <span>❌ Exclude Max Temp</span>
-                    <span className="text-red-650">Accuracy ↓ 21.3%</span>
-                  </div>
-                  <div className="flex justify-between pb-1.5 border-b border-stone-100">
-                    <span>❌ Exclude Aerosol AOD</span>
-                    <span className="text-red-500">Accuracy ↓ 8.2%</span>
-                  </div>
-                  <div className="flex justify-between pb-1.5 border-b border-stone-100">
-                    <span>❌ Exclude Humidity</span>
-                    <span className="text-stone-700">Accuracy ↓ 4.1%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>❌ Exclude Wind Speed</span>
-                    <span className="text-stone-500">Accuracy ↓ 1.8%</span>
-                  </div>
-                </div>
-              </div>
-              <span className="block text-[9px] font-black text-stone-400 uppercase tracking-widest mt-4">
-                Conclusion: Temperature remains key predictive parameter.
-              </span>
-            </div>
 
-            {/* Historical Average Risk charts */}
-            <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-stone-200">
-              <h3 className="text-lg font-black text-stone-900 mb-4 flex items-center gap-2">
-                <Activity className="text-blue-500" />
-                60-Day Historical Risk Trend (Avg Risk Score)
-              </h3>
-              
-              {/* Mocking trend coordinates chart */}
-              <div className="h-40 bg-stone-50 border border-stone-150 rounded-2xl flex items-end p-4 relative justify-between">
-                <div className="absolute top-2 left-2 text-[10px] text-stone-400 font-bold uppercase">Karnataka Average Score</div>
-                <div className="h-8 w-2.5 bg-[#f97316]/50 rounded-t" />
-                <div className="h-10 w-2.5 bg-[#f97316]/50 rounded-t" />
-                <div className="h-12 w-2.5 bg-[#f97316]/50 rounded-t" />
-                <div className="h-16 w-2.5 bg-[#f97316]/50 rounded-t" />
-                <div className="h-20 w-2.5 bg-[#f97316]/70 rounded-t" />
-                <div className="h-24 w-2.5 bg-[#f97316]/80 rounded-t" />
-                <div className="h-32 w-2.5 bg-red-500 rounded-t" />
-                <div className="h-28 w-2.5 bg-[#f97316]/90 rounded-t" />
-                <div className="h-22 w-2.5 bg-[#f97316]/70 rounded-t" />
-                <div className="h-14 w-2.5 bg-[#f97316]/50 rounded-t" />
-                <div className="h-16 w-2.5 bg-[#f97316]/50 rounded-t" />
-                <div className="h-24 w-2.5 bg-red-400 rounded-t" />
-                <div className="h-36 w-2.5 bg-red-600 rounded-t" />
-                <div className="h-28 w-2.5 bg-[#f97316]/90 rounded-t" />
-                <div className="h-18 w-2.5 bg-[#f97316]/70 rounded-t" />
-              </div>
-            </div>
-
-          </div>
 
           {/* Full prediction history table */}
           <div className="bg-white rounded-3xl p-6 border border-stone-200">
