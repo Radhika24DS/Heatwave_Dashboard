@@ -46,7 +46,14 @@ function App() {
             <Route path="forecast" element={<ForecastPage />} />
             <Route path="advisory" element={<AdvisoryPage />} />
             <Route path="map" element={<MapPage />} />
-            <Route path="history" element={<HistoryPage />} />
+            <Route 
+              path="history" 
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN']}>
+                  <HistoryPage />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="profile" element={<ProfilePage />} />
             
             <Route 
