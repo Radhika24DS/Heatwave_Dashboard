@@ -45,16 +45,29 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Set up CORS middleware
-if settings.ALLOWED_ORIGINS:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=[str(origin) for origin in settings.ALLOWED_ORIGINS],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-        expose_headers=["Content-Disposition"],
-    )
+# Set up CORS middleware (always enabled to support Vercel preview/production deployments)
+default_origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:5173",
+    "https://heatwavepredict.vercel.app",
+    "https://heatwave-dashboard-master.vercel.app"
+]
+
+cors_origins = [str(origin).rstrip("/") for origin in settings.ALLOWED_ORIGINS] if settings.ALLOWED_ORIGINS else []
+for d in default_origins:
+    if d not in cors_origins:
+        cors_origins.append(d)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app|http://localhost:\d+|http://127\.0\.0\.1:\d+",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["Content-Disposition"],
+)
 
 # Mount health check endpoint at both root level (/) and v1 (for load balancers)
 app.include_router(health_router)
