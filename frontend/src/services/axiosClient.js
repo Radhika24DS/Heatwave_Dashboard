@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
 
 const axiosClient = axios.create({
-  baseURL: 'https://heatwave-backend-master.onrender.com/api/v1',
+  baseURL: 'https://heatway-predict.onrender.com/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
